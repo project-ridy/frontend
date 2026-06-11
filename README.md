@@ -47,7 +47,7 @@ frontend/
 
 ## 에이전트 작업 가이드
 
-- 작업 지시서: [docs/agents/DEVELOPER_TASKS.md](https://github.com/project-ridy/docs/blob/main/agents/DEVELOPER_TASKS.md)
+- 작업 지시서: [agents/tasks/DEVELOPER_TASKS.md](https://github.com/project-ridy/agents/blob/main/tasks/DEVELOPER_TASKS.md)
 - 디자인 시스템: [docs/design/DESIGN_SYSTEM.md](https://github.com/project-ridy/docs/blob/main/design/DESIGN_SYSTEM.md)
 - 화면 정의서: [docs/design/SCREENS.md](https://github.com/project-ridy/docs/blob/main/design/SCREENS.md)
 - API 스펙: [docs/api/](https://github.com/project-ridy/docs/tree/main/api)
