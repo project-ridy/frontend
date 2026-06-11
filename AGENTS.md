@@ -4,7 +4,7 @@
 
 ## 에이전트 역할
 
-이 레포의 에이전트는 **Developer**와 **Designer**입니다. Orchestrator가 docs에 설계한 내용을 기반으로 구현합니다.
+이 레포의 에이전트는 **Frontend Developer**와 **Designer**입니다. Orchestrator가 docs에 설계한 내용을 기반으로 구현합니다.
 
 ## 필수 규칙
 
@@ -59,7 +59,7 @@ Closes #<이슈번호>
 type: feat | fix | test | design | refactor | docs | chore
 
 ### 사용 스킬
-- Developer: `tdd`, `react-expert`, `nextjs-expert`, `typescript-expert`, `code-review-expert`
+- Frontend Developer: `tdd`, `react-expert`, `nextjs-expert`, `typescript-expert`, `code-review-expert`
 - Designer: `ux-researcher-designer`, `apple-hig-expert`, `a11y-audit`
 
 ### PR 체크리스트
