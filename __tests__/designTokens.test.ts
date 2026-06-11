@@ -22,4 +22,17 @@ describe('디자인 토큰', () => {
       expect(css.toLowerCase()).toContain(token);
     }
   });
+
+  it('shadcn/ui CSS 변수가 정의되어 있다', () => {
+    const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+
+    for (const token of ['--background:', '--foreground:', '--primary:', '--card:', '--border:', '--ring:']) {
+      expect(css).toContain(token);
+    }
+  });
+
+  it('Pretendard 폰트가 --font-sans에 연결되어 있다', () => {
+    const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+    expect(css).toContain('--font-sans: var(--font-pretendard)');
+  });
 });
