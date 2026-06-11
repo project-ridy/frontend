@@ -4,10 +4,10 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['.next/**', 'node_modules/**', 'coverage/**'],
+    ignores: ['.next/**', 'node_modules/**', 'coverage/**', 'src/graphql/generated/**'],
   },
   eslint.configs.recommended,
-  next.flatConfig.coreWebVitals,
+  next.configs['core-web-vitals'],
   ...tseslint.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
