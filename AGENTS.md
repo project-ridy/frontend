@@ -36,18 +36,22 @@
 - docs에 정의되지 않은 내용은 임의로 추가하지 않음 — Orchestrator에 BLOCKED 보고
 
 ### 기술 스택 준수
-- **Next.js 15 App Router** — 서버 컴포넌트가 기본, `'use client'`는 필요할 때만
+- **최신 안정 버전 우선** — 작업 시작 전 `npm outdated`로 확인하고, 특별한 호환성 이슈가 없으면 latest 사용
+- **Next.js 16 App Router** — 서버 컴포넌트가 기본, `'use client'`는 필요할 때만
+- **GraphQL schema-first 연동** — 백엔드 `src/graphql/schema.graphql`을 먼저 확인하고, 프론트는 직접 타입을 손으로 만들지 않음
+- **GraphQL Code Generator 필수** — GraphQL 작업 전후 `npm run codegen` 실행, generated 타입/문서를 기준으로 구현
 - **shadcn/ui** — 컴포넌트는 shadcn 기반으로 조합, 바닥부터 만들지 않기
 - **Tailwind CSS 4** — 디자인 토큰 사용, 임의 값(`[...]`) 최소화, 모바일 퍼스트
 - **TanStack Query** — 서버 상태 관리, 컴포넌트 내 직접 fetch 금지
-- **TypeScript 5.x** — `any` 금지, `interface` 우선, `enum` 대신 `as const`
+- **TypeScript 6.x** — `any` 금지, `interface` 우선, `enum` 대신 `as const`
 
 ### 코딩 컨벤션
 - 컴포넌트: PascalCase 파일명, 단일 책임, early return 조건부 렌더링
 - 훅: `use` 접두사 + camelCase
 - 이벤트 핸들러: `handle` 접두사
+- GraphQL operation: `src/graphql/operations/*.graphql`에 먼저 작성
 - API 함수: `lib/api/`에 분리, 컴포넌트 내 직접 fetch 금지
-- 타입: `types/api.ts`, `types/domain.ts`에 정의, 인라인 타입 금지
+- API 타입: `src/graphql/generated/`의 codegen 산출물을 사용, 손작성 타입 금지
 - 테스트: `describe/it` 구조, 설명은 한국어, MSW로 API 모킹
 
 ### 커밋 메시지
@@ -68,5 +72,7 @@ type: feat | fix | test | design | refactor | docs | chore
 - [ ] `npm run lint` 에러 없는가?
 - [ ] `npm run test` 전체 통과하는가?
 - [ ] TypeScript 타입 에러 없는가?
+- [ ] GraphQL 작업 시 `npm run codegen`을 실행했는가?
+- [ ] 손작성 API 타입 대신 generated 타입을 사용했는가?
 - [ ] 디자인 시스템 토큰을 사용했는가?
 - [ ] 기능 작업인 경우 후속 테스트 이슈를 In Progress로 변경했는가?
