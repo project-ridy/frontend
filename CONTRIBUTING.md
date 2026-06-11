@@ -6,13 +6,37 @@
 
 ### 작업 흐름 (필수)
 
+**모든 작업은 GitHub Organization Project에서 관리됩니다.**
+📍 프로젝트 보드: https://github.com/orgs/project-ridy/projects/1
+
 ```
-1. 이슈 생성 → 2. 브랜치 생성 → 3. TDD 사이클 → 4. PR 생성 → 5. 리뷰 후 머지
+1. Project 이슈 할당 → 2. 이슈 In Progress → 3. 브랜치 생성 → 4. TDD 사이클 → 5. PR 생성 → 6. 이슈 Done
 ```
 
 - **main 브랜치에 직접 커밋 금지** — 모든 변경은 PR로
-- **이슈 없이 작업 금지** — 모든 작업은 이슈에서 시작
-- **기능 작업 후 반드시 테스트 이슈 생성** — 기능 PR 머지 후 테스트 이슈를 만들어 후속 테스트 작업 보장
+- **Project 이슈 없이 작업 금지** — 모든 작업은 Organization Project의 이슈에서 시작
+- **기능 작업 후 반드시 후속 테스트 이슈 진행** — 기능 PR 머지 후 Project에서 대응 테스트 이슈를 In Progress로 변경
+- **이슈 상태 관리**: 작업 시작 시 `In Progress`, PR 머지 후 `Done`으로 변경
+
+### 에이전트 스킬
+
+Developer 에이전트는 다음 스킬을 로드 후 작업합니다:
+
+| 스킬 | 용도 |
+|---|---|
+| `tdd` | TDD Red→Green→Refactor 사이클 강제 |
+| `react-expert` | React 19 패턴, 훅 규칙, 성능 최적화 |
+| `nextjs-expert` | App Router, RSC, 렌더링 전략 |
+| `typescript-expert` | 타입 안전성, 제네릭 패턴 |
+| `code-review-expert` | PR 셀프 리뷰 |
+
+Designer 에이전트는 다음 스킬을 로드 후 작업합니다:
+
+| 스킬 | 용도 |
+|---|---|
+| `ux-researcher-designer` | UX 패턴, 접근성, 사용자 흐름 |
+| `apple-hig-expert` | 모바일 UI/UX 가이드라인 |
+| `a11y-audit` | 접근성 감사 및 수정 |
 
 ### TDD (필수)
 
@@ -284,10 +308,10 @@ Closes #12
 
 ## 📋 체크리스트 (PR 생성 전)
 
-- [ ] 이슈가 생성되어 있는가?
+- [ ] Project 이슈가 할당되어 있는가?
 - [ ] TDD 사이클을 따랐는가? (Red → Green → Refactor)
 - [ ] `npm run lint` 에러가 없는가?
 - [ ] `npm run test` 전체 통과하는가?
 - [ ] TypeScript 타입 에러가 없는가?
 - [ ] 디자인 시스템 토큰을 사용했는가?
-- [ ] 기능 작업인 경우 테스트 이슈를 생성했는가?
+- [ ] 기능 작업인 경우 후속 테스트 이슈를 In Progress로 변경했는가?
