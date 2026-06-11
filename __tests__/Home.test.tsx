@@ -12,7 +12,6 @@ describe('홈 온보딩 화면', () => {
     expect(screen.getByText('함께 타는 길')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '카카오 로그인' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '구글 로그인' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Apple 로그인' })).toBeInTheDocument();
     expect(screen.getByText('회원가입 없이 소셜 계정으로 바로 시작')).toBeInTheDocument();
   });
 
@@ -22,5 +21,11 @@ describe('홈 온보딩 화면', () => {
     for (const keyword of ['안전', '편리', '친환경', '연결']) {
       expect(screen.getByText(keyword)).toBeInTheDocument();
     }
+  });
+
+  it('Apple 로그인 버튼이 존재하지 않는다', () => {
+    render(<Home />);
+
+    expect(screen.queryByRole('button', { name: /Apple/i })).not.toBeInTheDocument();
   });
 });
