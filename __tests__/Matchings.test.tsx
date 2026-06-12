@@ -140,6 +140,35 @@ describe('매칭 결과 화면', () => {
     expect(within(cards[1]!).getByText('박준서')).toBeInTheDocument();
   });
 
+  it('평점순과 출발시간순 정렬이 동작한다', async () => {
+    const user = userEvent.setup();
+    server.use(
+      graphql.query('SearchRides', () => {
+        return HttpResponse.json({
+          data: {
+            searchRides: {
+              totalCount: rides.length,
+              pageInfo: { hasNextPage: false, endCursor: 'ride-1' },
+              nodes: [rides[1], rides[0]],
+            },
+          },
+        });
+      }),
+    );
+
+    renderWithAuth(<MatchingsPage />);
+
+    await screen.findByText('박준서');
+    await user.click(screen.getByRole('button', { name: '요금순' }));
+    expect(within(screen.getAllByTestId('matching-result-card')[0]!).getByText('이민수')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '평점순' }));
+    expect(within(screen.getAllByTestId('matching-result-card')[0]!).getByText('박준서')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '출발시간순' }));
+    expect(within(screen.getAllByTestId('matching-result-card')[0]!).getByText('박준서')).toBeInTheDocument();
+  });
+
   it('카드를 누르면 상세 화면으로 이동한다', async () => {
     const user = userEvent.setup();
     renderWithAuth(<MatchingsPage />);
@@ -170,5 +199,21 @@ describe('매칭 상세 화면', () => {
     await user.click(screen.getByRole('button', { name: '요청 보내기' }));
 
     expect(await screen.findByText('탑승 요청을 보냈습니다')).toBeInTheDocument();
+  });
+
+  it('탑승 요청 실패 시 에러 상태를 표시한다', async () => {
+    const user = userEvent.setup();
+    server.use(
+      graphql.mutation('RequestRide', () => {
+        return HttpResponse.json({ errors: [{ message: 'request failed' }] }, { status: 500 });
+      }),
+    );
+
+    renderWithAuth(<MatchingDetailPage />);
+
+    await user.click(await screen.findByRole('button', { name: '탑승 요청' }));
+    await user.click(screen.getByRole('button', { name: '요청 보내기' }));
+
+    expect(await screen.findByText('탑승 요청을 보내지 못했습니다.')).toBeInTheDocument();
   });
 });

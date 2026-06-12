@@ -44,14 +44,19 @@ export default function MatchingDetailPage() {
       return;
     }
 
-    await requestRideMutation.mutateAsync({
-      input: {
-        rideId: rideDetailQuery.data.id,
-        pickup: null,
-        pickupAddr: null,
-        message: message.trim() || null,
-      },
-    });
+    try {
+      await requestRideMutation.mutateAsync({
+        input: {
+          rideId: rideDetailQuery.data.id,
+          pickup: null,
+          pickupAddr: null,
+          message: message.trim() || null,
+        },
+      });
+    } catch {
+      return;
+    }
+
     setRequestSent(true);
     setIsRequestOpen(false);
   };
