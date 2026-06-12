@@ -1,0 +1,50 @@
+query ChatRooms($pagination: PaginationInput) {
+  chatRooms(pagination: $pagination) {
+    id
+    unreadCount
+    createdAt
+    lastMessage {
+      id
+      roomId
+      type
+      content
+      createdAt
+      sender {
+        id
+        name
+      }
+    }
+    ride {
+      id
+      departureAddr
+      arrivalAddr
+      departureTime
+      driver {
+        id
+        name
+        rating
+        rideCount
+      }
+    }
+  }
+}
+
+query Messages($roomId: ID!, $pagination: PaginationInput) {
+  messages(roomId: $roomId, pagination: $pagination) {
+    nodes {
+      id
+      roomId
+      type
+      content
+      createdAt
+      sender {
+        id
+        name
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
