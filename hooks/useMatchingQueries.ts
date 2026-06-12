@@ -1,11 +1,18 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { fetchMyHomeRides, searchRides } from '@/lib/api/matching-api';
+import {
+  fetchMyHomeRides,
+  fetchRideDetail,
+  requestRide,
+  searchRides,
+} from '@/lib/api/matching-api';
 import type {
   MyHomeRidesQueryVariables,
+  RequestRideMutationVariables,
   RideStatus,
+  SearchRidesInput,
   SearchRidesQueryVariables,
 } from '@/src/graphql/generated/graphql';
 
@@ -36,4 +43,40 @@ export function useSearchRidesQuery(variables: SearchRidesQueryVariables | null)
     },
     enabled: variables !== null,
   });
+}
+
+export function useRideDetailQuery(id: string) {
+  return useQuery({
+    queryKey: ['matching', 'ride', id],
+    queryFn: () => fetchRideDetail({ id }),
+  });
+}
+
+export function useRequestRideMutation() {
+  return useMutation({
+    mutationFn: (variables: RequestRideMutationVariables) => requestRide(variables),
+  });
+}
+
+export function createDefaultSearchInput(departureTime: string | null): SearchRidesInput {
+  return {
+    departure: {
+      lat: 37.4979,
+      lng: 127.0276,
+    },
+    arrival: {
+      lat: 37.2636,
+      lng: 127.0286,
+    },
+    departureTime: searchDepartureTime(departureTime),
+    passengers: 1,
+    radiusKm: 5,
+  };
+}
+
+function searchDepartureTime(value: string | null): Date {
+  const today = new Date();
+  const [hour = '8', minute = '30'] = (value ?? '08:30').split(':');
+  today.setHours(Number(hour), Number(minute), 0, 0);
+  return today;
 }
