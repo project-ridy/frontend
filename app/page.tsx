@@ -11,6 +11,8 @@ import { RouteInput } from '@/components/ridy/RouteInput';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useMyHomeRidesQuery } from '@/hooks/useMatchingQueries';
+import type { MyHomeRidesQuery } from '@/src/graphql/generated/graphql';
 
 const bottomTabs = [
   { id: 'home', label: '홈', icon: 'home' as const },
@@ -19,30 +21,14 @@ const bottomTabs = [
   { id: 'profile', label: '내 정보', icon: 'profile' as const },
 ];
 
-const regularRides = [
-  {
-    driverName: '박준서',
-    departure: '강남역',
-    destination: '수원역',
-    departureTime: '월-금 08:30',
-    estimatedFare: '5,000원',
-    availableSeats: 2,
-  },
-  {
-    driverName: '이민수',
-    departure: '선릉역',
-    destination: '판교역',
-    departureTime: '화,목 08:45',
-    estimatedFare: '4,500원',
-    availableSeats: 1,
-  },
-] as const;
+type HomeRide = NonNullable<MyHomeRidesQuery['myRides']>['nodes'][number];
 
 export default function Home() {
   const router = useRouter();
   const [departure, setDeparture] = useState('');
   const [destination, setDestination] = useState('');
   const [departureTime, setDepartureTime] = useState('08:30');
+  const myRidesQuery = useMyHomeRidesQuery('OPEN');
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -137,19 +123,22 @@ export default function Home() {
           </div>
 
           <div className="space-y-gap-tight">
-            {regularRides.map((ride) => (
-              <MatchingCard key={`${ride.driverName}-${ride.departure}`} {...ride} />
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-6" aria-labelledby="empty-home-heading">
-          <div className="rounded-card border border-dashed border-gray-100 bg-white p-4 text-center">
-            <MapPin aria-hidden="true" className="mx-auto text-gray-500" size={22} />
-            <h2 id="empty-home-heading" className="mt-3 text-body font-semibold text-gray-900">
-              첫 카풀을 찾아보세요
-            </h2>
-            <p className="mt-1 text-caption text-gray-500">회사 동료의 출근길과 내 이동 경로를 맞춰볼 수 있어요.</p>
+            {myRidesQuery.isPending ? <HomeRideSkeleton /> : null}
+            {myRidesQuery.isError ? <HomeRideError onRetry={() => void myRidesQuery.refetch()} /> : null}
+            {myRidesQuery.isSuccess && myRidesQuery.data.nodes.length === 0 ? <HomeRideEmpty /> : null}
+            {myRidesQuery.isSuccess
+              ? myRidesQuery.data.nodes.map((ride) => (
+                  <MatchingCard
+                    key={ride.id}
+                    driverName={ride.driver.name}
+                    departure={ride.departureAddr ?? '출발지 미정'}
+                    destination={ride.arrivalAddr ?? '도착지 미정'}
+                    departureTime={formatRideTime(ride.departureTime)}
+                    estimatedFare={formatFare(ride.fare)}
+                    availableSeats={ride.availableSeats}
+                  />
+                ))
+              : null}
           </div>
         </section>
       </main>
@@ -157,4 +146,59 @@ export default function Home() {
       <BottomNavigation tabs={bottomTabs} activeTab="home" onTabChange={handleTabChange} />
     </AuthGuard>
   );
+}
+
+function HomeRideSkeleton() {
+  return (
+    <div className="space-y-2" aria-label="내 카풀 불러오는 중">
+      <div className="h-24 rounded-card bg-gray-100" />
+      <div className="h-24 rounded-card bg-gray-100" />
+    </div>
+  );
+}
+
+function HomeRideEmpty() {
+  return (
+    <div className="rounded-card border border-dashed border-gray-100 bg-white p-4 text-center">
+      <MapPin aria-hidden="true" className="mx-auto text-gray-500" size={22} />
+      <h2 id="empty-home-heading" className="mt-3 text-body font-semibold text-gray-900">
+        첫 카풀을 찾아보세요
+      </h2>
+      <p className="mt-1 text-caption text-gray-500">회사 동료의 출근길과 내 이동 경로를 맞춰볼 수 있어요.</p>
+    </div>
+  );
+}
+
+function HomeRideError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="rounded-card border border-danger/20 bg-white p-4 text-center">
+      <p className="text-body font-semibold text-gray-900">카풀 목록을 불러오지 못했습니다.</p>
+      <p className="mt-1 text-caption text-gray-500">잠시 후 다시 시도해주세요.</p>
+      <Button type="button" variant="outline" className="mt-3 h-9" onClick={onRetry}>
+        다시 시도
+      </Button>
+    </div>
+  );
+}
+
+function formatRideTime(value: HomeRide['departureTime']): string {
+  const date = value instanceof Date ? value : new Date(String(value));
+
+  if (Number.isNaN(date.getTime())) {
+    return '시간 미정';
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date);
+}
+
+function formatFare(value: HomeRide['fare']): string {
+  if (value === null) {
+    return '금액 미정';
+  }
+
+  return `${value.toLocaleString('ko-KR')}원`;
 }
