@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 
 import './globals.css';
+import { Providers } from '@/app/providers';
 import { cn } from '@/lib/utils';
 
 const pretendard = localFont({
@@ -27,7 +28,9 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="ko" className={cn('font-sans', pretendard.variable)}>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

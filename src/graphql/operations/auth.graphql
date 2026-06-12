@@ -1,0 +1,63 @@
+mutation JoinWithInviteCode($input: JoinWithInviteCodeInput!) {
+  joinWithInviteCode(input: $input) {
+    accessToken
+    refreshToken
+    user {
+      id
+      email
+      name
+      phone
+      imageUrl
+      role
+      employeeId
+      companyId
+      rating
+      rideCount
+    }
+  }
+}
+
+mutation Login($input: LoginInput!) {
+  login(input: $input) {
+    accessToken
+    refreshToken
+    user {
+      id
+      email
+      name
+      phone
+      imageUrl
+      role
+      employeeId
+      companyId
+      rating
+      rideCount
+    }
+  }
+}
+
+mutation UpdateProfile($input: UpdateProfileInput!) {
+  updateProfile(input: $input) {
+    id
+    email
+    name
+    phone
+    imageUrl
+    role
+    employeeId
+    companyId
+    rating
+    rideCount
+  }
+}
+
+mutation RegisterVehicle($input: RegisterVehicleInput!) {
+  registerVehicle(input: $input) {
+    id
+    userId
+    model
+    color
+    plate
+    capacity
+  }
+}
