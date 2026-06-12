@@ -1,10 +1,13 @@
 import React from 'react';
+import { HttpResponse, graphql } from 'msw';
+import { setupServer } from 'msw/node';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import Home from '@/app/page';
 import { saveAuthTokens } from '@/lib/auth/token-storage';
+import { TestProviders } from '@/test/TestProviders';
 
 const push = vi.fn();
 
@@ -12,19 +15,66 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
 }));
 
+const server = setupServer(
+  graphql.query('MyHomeRides', () => {
+    return HttpResponse.json({
+      data: {
+        myRides: {
+          totalCount: 1,
+          pageInfo: {
+            hasNextPage: false,
+            endCursor: 'ride-1',
+          },
+          nodes: [
+            {
+              id: 'ride-1',
+              departure: { lat: 37.4979, lng: 127.0276 },
+              departureAddr: '강남역',
+              arrival: { lat: 37.2636, lng: 127.0286 },
+              arrivalAddr: '수원역',
+              departureTime: '2026-06-12T08:30:00.000Z',
+              availableSeats: 2,
+              fare: 5000,
+              status: 'OPEN',
+              driver: {
+                id: 'driver-1',
+                name: '박준서',
+                rating: 4.8,
+                rideCount: 42,
+              },
+              requests: [],
+            },
+          ],
+        },
+      },
+    });
+  }),
+);
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
+  server.resetHandlers();
   localStorage.clear();
   push.mockClear();
 });
+afterAll(() => server.close());
 
 function renderAuthenticatedHome() {
   saveAuthTokens({ accessToken: 'access-token', refreshToken: 'refresh-token' });
-  render(<Home />);
+  renderHome();
+}
+
+function renderHome() {
+  render(
+    <TestProviders>
+      <Home />
+    </TestProviders>,
+  );
 }
 
 describe('홈 화면', () => {
   it('토큰이 없으면 로그인 화면으로 이동한다', async () => {
-    render(<Home />);
+    renderHome();
 
     await waitFor(() => expect(push).toHaveBeenCalledWith('/login'));
     expect(screen.queryByRole('heading', { name: '테크스타터' })).not.toBeInTheDocument();
@@ -40,8 +90,47 @@ describe('홈 화면', () => {
     expect(screen.getByLabelText('출발 시간')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /매칭 찾기/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '내 정기 카풀' })).toBeInTheDocument();
-    expect(screen.getByText('박준서')).toBeInTheDocument();
-    expect(screen.getByText('첫 카풀을 찾아보세요')).toBeInTheDocument();
+    expect(await screen.findByText('박준서')).toBeInTheDocument();
+    expect(screen.getByText('강남역')).toBeInTheDocument();
+    expect(screen.getByText('수원역')).toBeInTheDocument();
+    expect(screen.getByText('5,000원')).toBeInTheDocument();
+    expect(screen.queryByText('첫 카풀을 찾아보세요')).not.toBeInTheDocument();
+  });
+
+  it('내 카풀이 없으면 빈 상태를 보여준다', async () => {
+    server.use(
+      graphql.query('MyHomeRides', () => {
+        return HttpResponse.json({
+          data: {
+            myRides: {
+              totalCount: 0,
+              pageInfo: { hasNextPage: false, endCursor: null },
+              nodes: [],
+            },
+          },
+        });
+      }),
+    );
+
+    renderAuthenticatedHome();
+
+    expect(await screen.findByText('첫 카풀을 찾아보세요')).toBeInTheDocument();
+    expect(screen.queryByText('박준서')).not.toBeInTheDocument();
+  });
+
+  it('내 카풀 조회가 실패하면 에러 상태와 재시도 버튼을 보여준다', async () => {
+    server.use(
+      graphql.query('MyHomeRides', () => {
+        return HttpResponse.json({
+          errors: [{ message: '카풀 목록을 불러오지 못했습니다.' }],
+        });
+      }),
+    );
+
+    renderAuthenticatedHome();
+
+    expect(await screen.findByText('카풀 목록을 불러오지 못했습니다.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '다시 시도' })).toBeInTheDocument();
   });
 
   it('경로와 시간을 입력하면 매칭 결과로 이동한다', async () => {

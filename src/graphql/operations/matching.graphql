@@ -1,0 +1,73 @@
+query MyHomeRides($status: RideStatus, $pagination: PaginationInput) {
+  myRides(status: $status, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    nodes {
+      id
+      departure {
+        lat
+        lng
+      }
+      departureAddr
+      arrival {
+        lat
+        lng
+      }
+      arrivalAddr
+      departureTime
+      availableSeats
+      fare
+      status
+      driver {
+        id
+        name
+        rating
+        rideCount
+      }
+      requests {
+        id
+        status
+      }
+    }
+  }
+}
+
+query SearchRides($input: SearchRidesInput!, $pagination: PaginationInput) {
+  searchRides(input: $input, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    nodes {
+      id
+      departure {
+        lat
+        lng
+      }
+      departureAddr
+      arrival {
+        lat
+        lng
+      }
+      arrivalAddr
+      departureTime
+      availableSeats
+      fare
+      status
+      driver {
+        id
+        name
+        rating
+        rideCount
+      }
+      requests {
+        id
+        status
+      }
+    }
+  }
+}
