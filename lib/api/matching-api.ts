@@ -1,8 +1,14 @@
 import {
   MyHomeRidesDocument,
+  RequestRideDocument,
+  RideDetailDocument,
   SearchRidesDocument,
   type MyHomeRidesQuery,
   type MyHomeRidesQueryVariables,
+  type RequestRideMutation,
+  type RequestRideMutationVariables,
+  type RideDetailQuery,
+  type RideDetailQueryVariables,
   type SearchRidesQuery,
   type SearchRidesQueryVariables,
 } from '@/src/graphql/generated/graphql';
@@ -37,4 +43,34 @@ export async function searchRides(
   }
 
   return data.searchRides;
+}
+
+export async function fetchRideDetail(
+  variables: RideDetailQueryVariables,
+): Promise<NonNullable<RideDetailQuery['ride']>> {
+  const data = await executeGraphql<RideDetailQuery, RideDetailQueryVariables>(
+    RideDetailDocument,
+    variables,
+  );
+
+  if (!data.ride) {
+    throw new Error('카풀 상세 응답이 비어 있습니다.');
+  }
+
+  return data.ride;
+}
+
+export async function requestRide(
+  variables: RequestRideMutationVariables,
+): Promise<NonNullable<RequestRideMutation['requestRide']>> {
+  const data = await executeGraphql<RequestRideMutation, RequestRideMutationVariables>(
+    RequestRideDocument,
+    variables,
+  );
+
+  if (!data.requestRide) {
+    throw new Error('탑승 요청 응답이 비어 있습니다.');
+  }
+
+  return data.requestRide;
 }

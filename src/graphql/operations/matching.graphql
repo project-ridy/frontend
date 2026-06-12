@@ -71,3 +71,40 @@ query SearchRides($input: SearchRidesInput!, $pagination: PaginationInput) {
     }
   }
 }
+
+query RideDetail($id: ID!) {
+  ride(id: $id) {
+    id
+    departure {
+      lat
+      lng
+    }
+    departureAddr
+    arrival {
+      lat
+      lng
+    }
+    arrivalAddr
+    departureTime
+    availableSeats
+    fare
+    status
+    driver {
+      id
+      name
+      rating
+      rideCount
+    }
+    requests {
+      id
+      status
+    }
+  }
+}
+
+mutation RequestRide($input: RequestRideInput!) {
+  requestRide(input: $input) {
+    id
+    status
+  }
+}
