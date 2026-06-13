@@ -33,7 +33,7 @@ export default function MatchingDetailPage() {
       home: '/',
       search: '/matchings',
       chat: '/chat',
-      profile: '/my',
+      profile: '/profile',
     };
 
     router.push(routes[tabId] ?? '/');
