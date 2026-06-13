@@ -76,7 +76,7 @@ export default function PaymentsPage() {
       home: '/',
       search: '/matchings',
       chat: '/chat',
-      profile: '/my',
+      profile: '/profile',
     };
 
     router.push(routes[tabId] ?? '/');

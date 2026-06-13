@@ -1,3 +1,43 @@
+query Me {
+  me {
+    id
+    email
+    name
+    phone
+    imageUrl
+    role
+    employeeId
+    companyId
+    rating
+    rideCount
+    company {
+      id
+      name
+    }
+    vehicles {
+      id
+      userId
+      model
+      color
+      plate
+      capacity
+      createdAt
+    }
+  }
+}
+
+query MyVehicles {
+  myVehicles {
+    id
+    userId
+    model
+    color
+    plate
+    capacity
+    createdAt
+  }
+}
+
 mutation JoinWithInviteCode($input: JoinWithInviteCodeInput!) {
   joinWithInviteCode(input: $input) {
     accessToken
@@ -48,6 +88,19 @@ mutation UpdateProfile($input: UpdateProfileInput!) {
     companyId
     rating
     rideCount
+    company {
+      id
+      name
+    }
+    vehicles {
+      id
+      userId
+      model
+      color
+      plate
+      capacity
+      createdAt
+    }
   }
 }
 
@@ -59,5 +112,22 @@ mutation RegisterVehicle($input: RegisterVehicleInput!) {
     color
     plate
     capacity
+    createdAt
   }
+}
+
+mutation UpdateVehicle($id: ID!, $input: UpdateVehicleInput!) {
+  updateVehicle(id: $id, input: $input) {
+    id
+    userId
+    model
+    color
+    plate
+    capacity
+    createdAt
+  }
+}
+
+mutation DeleteVehicle($id: ID!) {
+  deleteVehicle(id: $id)
 }

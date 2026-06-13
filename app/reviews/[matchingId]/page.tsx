@@ -50,7 +50,7 @@ export default function ReviewPage() {
       home: '/',
       search: '/matchings',
       chat: '/chat',
-      profile: '/my',
+      profile: '/profile',
     };
 
     router.push(routes[tabId] ?? '/');

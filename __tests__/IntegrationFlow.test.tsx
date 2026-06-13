@@ -239,7 +239,7 @@ describe('홈/매칭/채팅 통합 흐름', () => {
 
     expect(push).toHaveBeenCalledWith('/matchings');
     expect(push).toHaveBeenCalledWith('/chat');
-    expect(push).toHaveBeenCalledWith('/my');
+    expect(push).toHaveBeenCalledWith('/profile');
   });
 
   it('토큰이 없으면 홈 접근 시 로그인으로 이동한다', async () => {
