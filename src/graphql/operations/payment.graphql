@@ -1,0 +1,116 @@
+query MySettlements($pagination: PaginationInput) {
+  mySettlements(pagination: $pagination) {
+    id
+    amount
+    driverAmount
+    platformFee
+    companyFee
+    passengerFee
+    status
+    dueDate
+    paidAt
+    createdAt
+    passenger {
+      id
+      name
+    }
+    ride {
+      id
+      departureAddr
+      arrivalAddr
+      departureTime
+      driver {
+        id
+        name
+        rating
+        rideCount
+      }
+    }
+  }
+}
+
+query SettlementDetail($id: ID!) {
+  settlementDetail(id: $id) {
+    id
+    amount
+    driverAmount
+    platformFee
+    companyFee
+    passengerFee
+    status
+    dueDate
+    paidAt
+    createdAt
+    passenger {
+      id
+      name
+    }
+    ride {
+      id
+      departureAddr
+      arrivalAddr
+      departureTime
+      driver {
+        id
+        name
+        rating
+        rideCount
+      }
+    }
+  }
+}
+
+query MyPaymentMethods {
+  myPaymentMethods {
+    id
+    type
+    alias
+    isDefault
+    createdAt
+  }
+}
+
+mutation PaySettlement($settlementId: ID!, $idempotencyKey: String!) {
+  paySettlement(settlementId: $settlementId, idempotencyKey: $idempotencyKey) {
+    id
+    amount
+    driverAmount
+    platformFee
+    companyFee
+    passengerFee
+    status
+    dueDate
+    paidAt
+    createdAt
+    passenger {
+      id
+      name
+    }
+    ride {
+      id
+      departureAddr
+      arrivalAddr
+      departureTime
+      driver {
+        id
+        name
+        rating
+        rideCount
+      }
+    }
+  }
+}
+
+mutation RegisterPaymentMethod($input: RegisterPaymentMethodInput!) {
+  registerPaymentMethod(input: $input) {
+    id
+    type
+    alias
+    isDefault
+    createdAt
+  }
+}
+
+mutation DeletePaymentMethod($id: ID!) {
+  deletePaymentMethod(id: $id)
+}
