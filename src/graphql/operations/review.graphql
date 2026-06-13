@@ -1,0 +1,80 @@
+query RideReviews($rideId: ID!) {
+  rideReviews(rideId: $rideId) {
+    id
+    rating
+    comment
+    createdAt
+    fromUser {
+      id
+      name
+      rating
+      rideCount
+    }
+    toUser {
+      id
+      name
+      rating
+      rideCount
+    }
+    ride {
+      id
+      departureAddr
+      arrivalAddr
+      departureTime
+    }
+  }
+}
+
+query UserReviews($userId: ID!, $pagination: PaginationInput) {
+  userReviews(userId: $userId, pagination: $pagination) {
+    id
+    rating
+    comment
+    createdAt
+    fromUser {
+      id
+      name
+      rating
+      rideCount
+    }
+    toUser {
+      id
+      name
+      rating
+      rideCount
+    }
+    ride {
+      id
+      departureAddr
+      arrivalAddr
+      departureTime
+    }
+  }
+}
+
+mutation CreateReview($input: CreateReviewInput!) {
+  createReview(input: $input) {
+    id
+    rating
+    comment
+    createdAt
+    fromUser {
+      id
+      name
+      rating
+      rideCount
+    }
+    toUser {
+      id
+      name
+      rating
+      rideCount
+    }
+    ride {
+      id
+      departureAddr
+      arrivalAddr
+      departureTime
+    }
+  }
+}
