@@ -35,4 +35,22 @@ describe('디자인 토큰', () => {
     const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
     expect(css).toContain('--font-sans: var(--font-pretendard)');
   });
+
+  it('간격, 반경, 입력 높이 토큰을 Tailwind theme에 연결한다', () => {
+    const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+
+    for (const token of [
+      '--spacing-page-mobile: 1rem',
+      '--spacing-page-tablet: 1.5rem',
+      '--spacing-page-desktop: 2rem',
+      '--spacing-gap-tight: 0.75rem',
+      '--spacing-gap-normal: 1rem',
+      '--spacing-gap-loose: 1.5rem',
+      '--radius-button: var(--radius-button)',
+      '--radius-card: var(--radius-card)',
+      '--height-input: 3rem',
+    ]) {
+      expect(css).toContain(token);
+    }
+  });
 });
