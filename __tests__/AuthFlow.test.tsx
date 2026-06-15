@@ -12,13 +12,16 @@ import { saveAuthTokens, clearAuthTokens } from '@/lib/auth/token-storage';
 import { TestProviders } from '@/test/TestProviders';
 
 const push = vi.fn();
+const joinRequests: unknown[] = [];
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
 }));
 
 const server = setupServer(
-  graphql.mutation('JoinWithInviteCode', () => {
+  graphql.mutation('JoinWithInviteCode', ({ variables }) => {
+    joinRequests.push(variables);
+
     return HttpResponse.json({
       data: {
         joinWithInviteCode: {
@@ -81,13 +84,14 @@ const server = setupServer(
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   server.resetHandlers();
+  joinRequests.length = 0;
   localStorage.clear();
   push.mockClear();
 });
 afterAll(() => server.close());
 
 describe('로그인/온보딩 플로우', () => {
-  it('로그인 화면은 초대 코드와 카카오/구글 로그인만 노출하고 Apple 로그인은 제거한다', () => {
+  it('로그인 화면은 초대 코드, 회사 이메일과 카카오/구글 로그인만 노출하고 Apple 로그인은 제거한다', () => {
     render(
       <TestProviders>
         <LoginPage />
@@ -96,6 +100,7 @@ describe('로그인/온보딩 플로우', () => {
 
     expect(screen.getByRole('heading', { name: /Ridy/ })).toBeInTheDocument();
     expect(screen.getByLabelText('초대 코드')).toBeInTheDocument();
+    expect(screen.getByLabelText('회사 이메일')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '카카오로 계속하기' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '구글로 계속하기' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Apple|애플/i })).not.toBeInTheDocument();
@@ -113,9 +118,10 @@ describe('로그인/온보딩 플로우', () => {
     await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
 
     expect(await screen.findByText('초대 코드를 입력해주세요.')).toBeInTheDocument();
+    expect(joinRequests).toHaveLength(0);
   });
 
-  it('초대 코드와 카카오 로그인이 성공하면 토큰을 저장하고 프로필 설정으로 이동한다', async () => {
+  it('회사 이메일 없이 소셜 로그인을 누르면 유효성 메시지를 보여준다', async () => {
     const user = userEvent.setup();
 
     render(
@@ -127,9 +133,73 @@ describe('로그인/온보딩 플로우', () => {
     await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
     await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
 
+    expect(await screen.findByText('회사 이메일을 입력해주세요.')).toBeInTheDocument();
+    expect(joinRequests).toHaveLength(0);
+  });
+
+  it('회사 이메일 형식이 올바르지 않으면 요청하지 않고 유효성 메시지를 보여준다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
+    await user.type(screen.getByLabelText('회사 이메일'), 'jane-company');
+    await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
+
+    expect(await screen.findByText('올바른 회사 이메일을 입력해주세요.')).toBeInTheDocument();
+    expect(joinRequests).toHaveLength(0);
+  });
+
+  it('초대 코드와 회사 이메일로 카카오 로그인이 성공하면 companyEmail을 전달하고 프로필 설정으로 이동한다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    await user.type(screen.getByLabelText('초대 코드'), ' abc123 ');
+    await user.type(screen.getByLabelText('회사 이메일'), ' jane@company.com ');
+    await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
+
     await waitFor(() => expect(localStorage.getItem('ridy.accessToken')).toBe('access-token'));
+    expect(joinRequests).toContainEqual({
+      input: {
+        inviteCode: 'ABC123',
+        companyEmail: 'jane@company.com',
+        provider: 'kakao',
+        oauthToken: 'mock-kakao-oauth-token',
+        employeeId: null,
+      },
+    });
     expect(localStorage.getItem('ridy.refreshToken')).toBe('refresh-token');
     expect(push).toHaveBeenCalledWith('/profile/setup');
+  });
+
+  it('도메인 불일치 응답이면 backend 에러 메시지를 표시한다', async () => {
+    const user = userEvent.setup();
+    server.use(
+      graphql.mutation('JoinWithInviteCode', () => {
+        return HttpResponse.json({ errors: [{ message: '회사 이메일 도메인이 일치하지 않습니다' }] });
+      }),
+    );
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
+    await user.type(screen.getByLabelText('회사 이메일'), 'jane@external.com');
+    await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
+
+    expect(await screen.findByText('회사 이메일 도메인이 일치하지 않습니다')).toBeInTheDocument();
   });
 
   it('프로필 설정에서 차주 토글 시 차량 정보 입력 폼을 노출한다', async () => {
