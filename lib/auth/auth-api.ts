@@ -1,33 +1,50 @@
 import {
-  JoinWithInviteCodeDocument,
+  CompleteEmailPasswordSignupDocument,
   LoginDocument,
   RegisterVehicleDocument,
+  RequestCompanyEmailVerificationDocument,
   UpdateProfileDocument,
-  type JoinWithInviteCodeMutation,
-  type JoinWithInviteCodeMutationVariables,
+  type CompleteEmailPasswordSignupMutation,
+  type CompleteEmailPasswordSignupMutationVariables,
   type LoginMutation,
   type LoginMutationVariables,
   type RegisterVehicleMutation,
   type RegisterVehicleMutationVariables,
+  type RequestCompanyEmailVerificationMutation,
+  type RequestCompanyEmailVerificationMutationVariables,
   type UpdateProfileMutation,
   type UpdateProfileMutationVariables,
 } from '@/src/graphql/generated/graphql';
 
 import { executeGraphql } from '@/lib/api/graphql-client';
 
-export type SocialProvider = 'kakao' | 'google';
-
-export async function joinWithInviteCode(input: JoinWithInviteCodeMutationVariables['input']) {
-  const data = await executeGraphql<JoinWithInviteCodeMutation, JoinWithInviteCodeMutationVariables>(
-    JoinWithInviteCodeDocument,
+export async function requestCompanyEmailVerification(input: RequestCompanyEmailVerificationMutationVariables['input']) {
+  const data = await executeGraphql<
+    RequestCompanyEmailVerificationMutation,
+    RequestCompanyEmailVerificationMutationVariables
+  >(
+    RequestCompanyEmailVerificationDocument,
     { input },
   );
 
-  if (!data.joinWithInviteCode) {
+  if (!data.requestCompanyEmailVerification) {
+    throw new Error('이메일 인증 요청 응답이 비어 있습니다.');
+  }
+
+  return data.requestCompanyEmailVerification;
+}
+
+export async function completeEmailPasswordSignup(input: CompleteEmailPasswordSignupMutationVariables['input']) {
+  const data = await executeGraphql<CompleteEmailPasswordSignupMutation, CompleteEmailPasswordSignupMutationVariables>(
+    CompleteEmailPasswordSignupDocument,
+    { input },
+  );
+
+  if (!data.completeEmailPasswordSignup) {
     throw new Error('가입 응답이 비어 있습니다.');
   }
 
-  return data.joinWithInviteCode;
+  return data.completeEmailPasswordSignup;
 }
 
 export async function login(input: LoginMutationVariables['input']) {
