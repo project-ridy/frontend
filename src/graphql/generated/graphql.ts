@@ -12,6 +12,7 @@ export type CreateReviewInput = {
 };
 
 export type JoinWithInviteCodeInput = {
+  readonly companyEmail: string;
   readonly employeeId: string | null | undefined;
   readonly inviteCode: string;
   readonly oauthToken: string;

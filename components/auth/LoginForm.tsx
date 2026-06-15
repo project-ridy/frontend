@@ -19,17 +19,33 @@ function createMockOAuthToken(provider: SocialProvider) {
   return `mock-${provider}-oauth-token`;
 }
 
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export function LoginForm() {
   const router = useRouter();
   const [inviteCode, setInviteCode] = useState('');
+  const [companyEmail, setCompanyEmail] = useState('');
   const [validationMessage, setValidationMessage] = useState('');
   const joinMutation = useSocialJoinMutation();
 
   const handleSocialLogin = async (provider: SocialProvider) => {
-    const trimmedInviteCode = inviteCode.trim();
+    const trimmedInviteCode = inviteCode.trim().toUpperCase();
+    const trimmedCompanyEmail = companyEmail.trim();
 
     if (!trimmedInviteCode) {
       setValidationMessage('초대 코드를 입력해주세요.');
+      return;
+    }
+
+    if (!trimmedCompanyEmail) {
+      setValidationMessage('회사 이메일을 입력해주세요.');
+      return;
+    }
+
+    if (!isValidEmail(trimmedCompanyEmail)) {
+      setValidationMessage('올바른 회사 이메일을 입력해주세요.');
       return;
     }
 
@@ -38,6 +54,7 @@ export function LoginForm() {
     try {
       await joinMutation.mutateAsync({
         inviteCode: trimmedInviteCode,
+        companyEmail: trimmedCompanyEmail,
         provider,
         oauthToken: createMockOAuthToken(provider),
       });
@@ -71,6 +88,22 @@ export function LoginForm() {
               autoComplete="one-time-code"
               className="h-input text-base"
             />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="company-email" className="text-small font-semibold text-gray-900">
+              회사 이메일
+            </label>
+            <Input
+              id="company-email"
+              aria-label="회사 이메일"
+              type="email"
+              value={companyEmail}
+              onChange={(event) => setCompanyEmail(event.target.value)}
+              placeholder="name@company.com"
+              autoComplete="email"
+              className="h-input text-base"
+            />
             {validationMessage ? <p className="text-small text-danger">{validationMessage}</p> : null}
           </div>
 
@@ -98,7 +131,7 @@ export function LoginForm() {
 
           <div className="flex items-start gap-2 rounded-xl bg-gray-50 p-3 text-small text-gray-500">
             <KeyRound className="mt-0.5 size-4 text-primary" aria-hidden="true" />
-            <p>Ridy는 같은 회사 구성원만 초대 코드로 가입할 수 있습니다.</p>
+            <p>Ridy는 가입 코드와 회사 이메일로만 가입할 수 있습니다.</p>
           </div>
         </CardContent>
       </Card>

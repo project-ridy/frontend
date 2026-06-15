@@ -8,6 +8,7 @@ import type { Role } from '@/src/graphql/generated/graphql';
 
 export interface SocialJoinInput {
   inviteCode: string;
+  companyEmail: string;
   provider: SocialProvider;
   oauthToken: string;
 }
@@ -27,9 +28,10 @@ export interface ProfileSetupInput {
 
 export function useSocialJoinMutation() {
   return useMutation({
-    mutationFn: async ({ inviteCode, provider, oauthToken }: SocialJoinInput) => {
+    mutationFn: async ({ inviteCode, companyEmail, provider, oauthToken }: SocialJoinInput) => {
       const authPayload = await joinWithInviteCode({
         inviteCode,
+        companyEmail,
         provider,
         oauthToken,
         employeeId: null,
