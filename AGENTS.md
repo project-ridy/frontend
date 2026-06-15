@@ -39,6 +39,8 @@
   - 화면 구현: `docs/design/SCREENS.md` 정의 준수
   - 와이어프레임: `docs/design/WIREFRAMES.md` 기준
 - docs에 정의되지 않은 내용은 임의로 추가하지 않음 — Orchestrator에 BLOCKED 보고
+- 구현 계획서의 A/E/X Case ID가 없거나, Case ID별 구현 파일/테스트 파일 연결표를 작성할 수 없으면 작업을 시작하지 않고 `BLOCKED`로 보고한다.
+- PR에는 계획서의 모든 기능 코드 Case ID에 대해 구현 파일/단위, 테스트 파일/테스트명, PASS/BLOCKED 상태를 포함한다.
 
 ### 기술 스택 준수
 - **최신 안정 버전 우선** — 작업 시작 전 `npm outdated`로 확인하고, 특별한 호환성 이슈가 없으면 latest 사용
