@@ -1,0 +1,36 @@
+query EcoImpactDashboard($period: String!, $pagination: PaginationInput) {
+  myCarbonImpact(period: $period) {
+    period
+    totalRides
+    totalDistanceKm
+    co2SavedKg
+    treeEquivalent
+    level
+    badges {
+      id
+      label
+      description
+      achievedAt
+    }
+  }
+  carbonHistory(period: $period, pagination: $pagination) {
+    monthly {
+      period
+      totalRides
+      totalDistanceKm
+      co2SavedKg
+    }
+    rides {
+      rideId
+      completedAt
+      departureAddr
+      arrivalAddr
+      distanceKm
+      co2SavedKg
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
