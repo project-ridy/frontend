@@ -179,7 +179,7 @@ export function LoginForm() {
               role="tab"
               aria-selected={mode === 'login'}
               className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-                mode === 'login' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                mode === 'login' ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary'
               }`}
               onClick={() => handleModeChange('login')}
             >
@@ -190,7 +190,7 @@ export function LoginForm() {
               role="tab"
               aria-selected={mode === 'signup'}
               className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-                mode === 'signup' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                mode === 'signup' ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary'
               }`}
               onClick={() => handleModeChange('signup')}
             >
