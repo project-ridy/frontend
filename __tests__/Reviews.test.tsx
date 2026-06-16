@@ -99,9 +99,11 @@ describe('평점/리뷰 화면', () => {
     renderWithAuth(<ReviewPage />);
 
     expect(await screen.findByRole('heading', { name: '평점/리뷰' })).toBeInTheDocument();
+    expect(screen.getByRole('main')).toHaveClass('lg:max-w-6xl');
     expect(screen.getByText('운행 ride-1')).toBeInTheDocument();
 
     await user.type(screen.getByLabelText('상대방 ID'), 'driver-1');
+    expect(screen.getByLabelText('별점 선택')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '5점' }));
     await user.click(screen.getByRole('button', { name: '시간준수' }));
     await user.click(screen.getByRole('button', { name: '친절' }));
@@ -125,6 +127,7 @@ describe('평점/리뷰 화면', () => {
 
     const submitButton = await screen.findByRole('button', { name: '리뷰 제출' });
     expect(submitButton).toBeDisabled();
+    expect(screen.getByText('별점을 선택하면 리뷰를 제출할 수 있습니다.')).toBeInTheDocument();
 
     await user.type(screen.getByLabelText('상대방 ID'), 'driver-1');
     expect(submitButton).toBeDisabled();

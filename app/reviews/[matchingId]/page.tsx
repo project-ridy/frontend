@@ -6,6 +6,7 @@ import { type FormEvent, useMemo, useState } from 'react';
 
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BottomNavigation } from '@/components/ridy/BottomNavigation';
+import { PageShell } from '@/components/ridy/PageShell';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -89,17 +90,17 @@ export default function ReviewPage() {
   if (!rideId) {
     return (
       <AuthGuard>
-        <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+        <PageShell bottomNavOffset>
           <h1 className="text-h2 text-gray-900">평점/리뷰</h1>
           <p className="mt-3 rounded-card bg-white p-5 text-body text-gray-700">잘못된 운행 ID입니다.</p>
-        </main>
+        </PageShell>
       </AuthGuard>
     );
   }
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <PageShell bottomNavOffset>
         <header aria-label="평점 리뷰 헤더">
           <p className="text-small font-medium text-gray-500">함께 탄 경험을 남겨주세요</p>
           <h1 className="mt-1 text-h2 text-gray-900">평점/리뷰</h1>
@@ -139,7 +140,7 @@ export default function ReviewPage() {
 
                 <div>
                   <p className="text-caption font-semibold text-gray-700">별점</p>
-                  <div className="mt-2 grid grid-cols-5 gap-2">
+                  <div className="mt-2 grid grid-cols-5 gap-2" aria-label="별점 선택">
                     {[1, 2, 3, 4, 5].map((score) => (
                       <Button
                         key={score}
@@ -201,6 +202,9 @@ export default function ReviewPage() {
                 >
                   리뷰 제출
                 </Button>
+                {rating === 0 ? (
+                  <p className="text-caption text-gray-500">별점을 선택하면 리뷰를 제출할 수 있습니다.</p>
+                ) : null}
               </form>
               {successMessage ? <p className="mt-3 text-caption font-semibold text-success">{successMessage}</p> : null}
               {createReviewMutation.isError ? (
@@ -231,7 +235,7 @@ export default function ReviewPage() {
           errorText="받은 리뷰를 불러오지 못했습니다."
           onRetry={() => void userReviewsQuery.refetch()}
         />
-      </main>
+      </PageShell>
 
       <BottomNavigation tabs={bottomTabs} activeTab="profile" onTabChange={handleTabChange} />
     </AuthGuard>
