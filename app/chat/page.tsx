@@ -1,10 +1,12 @@
 'use client';
 
-import { MessageCircle, RefreshCw } from 'lucide-react';
+import { MessageCircle, RefreshCw, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
 
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BottomNavigation } from '@/components/ridy/BottomNavigation';
+import { PageShell } from '@/components/ridy/PageShell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useChatRoomsQuery } from '@/hooks/useChatQueries';
@@ -22,7 +24,25 @@ type ChatRoom = ChatRoomsQuery['chatRooms'][number];
 
 export default function ChatPage() {
   const router = useRouter();
+  const [query, setQuery] = useState('');
   const chatRoomsQuery = useChatRoomsQuery();
+
+  const filteredRooms = useMemo(() => {
+    const rooms = chatRoomsQuery.data ?? [];
+    const normalizedQuery = query.trim().toLowerCase();
+
+    if (!normalizedQuery) {
+      return rooms;
+    }
+
+    return rooms.filter((room) => {
+      const route = formatRoute(room.ride.departureAddr, room.ride.arrivalAddr).toLowerCase();
+      const driverName = room.ride.driver.name.toLowerCase();
+      const lastMessage = room.lastMessage?.content.toLowerCase() ?? '';
+
+      return route.includes(normalizedQuery) || driverName.includes(normalizedQuery) || lastMessage.includes(normalizedQuery);
+    });
+  }, [chatRoomsQuery.data, query]);
 
   const handleTabChange = (tabId: string) => {
     const routes: Record<string, string> = {
@@ -37,25 +57,43 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <PageShell ariaLabel="채팅 목록" bottomNavOffset className="lg:max-w-4xl">
         <header aria-label="채팅 목록 헤더">
           <p className="text-small font-medium text-gray-500">함께 타는 길</p>
           <h1 className="mt-1 text-h2 text-gray-900">채팅</h1>
         </header>
 
-        <section className="mt-5 space-y-gap-tight" aria-label="채팅방 목록">
+        <section className="mt-5" aria-label="채팅방 검색 영역">
+          <label className="sr-only" htmlFor="chat-room-search">
+            채팅방 검색
+          </label>
+          <div className="flex h-12 items-center gap-2 rounded-button border border-gray-100 bg-white px-3 shadow-sm focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+            <Search aria-hidden="true" size={18} className="shrink-0 text-gray-500" />
+            <input
+              id="chat-room-search"
+              aria-label="채팅방 검색"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="상대 이름이나 경로 검색"
+              className="h-full min-w-0 flex-1 bg-transparent text-body text-gray-900 outline-none placeholder:text-gray-400"
+            />
+          </div>
+        </section>
+
+        <section className="mt-5 space-y-gap-tight lg:grid lg:grid-cols-2 lg:gap-gap-normal lg:space-y-0" aria-label="채팅방 목록">
           {chatRoomsQuery.isPending ? <ChatRoomsLoading /> : null}
           {chatRoomsQuery.isError ? (
             <ChatRoomsError onRetry={() => void chatRoomsQuery.refetch()} />
           ) : null}
           {chatRoomsQuery.isSuccess && chatRoomsQuery.data.length === 0 ? <ChatRoomsEmpty /> : null}
+          {chatRoomsQuery.isSuccess && chatRoomsQuery.data.length > 0 && filteredRooms.length === 0 ? <ChatRoomsNoSearchResult /> : null}
           {chatRoomsQuery.isSuccess
-            ? chatRoomsQuery.data.map((room) => (
+            ? filteredRooms.map((room) => (
                 <ChatRoomCard key={room.id} room={room} onClick={() => router.push(`/chat/${room.id}`)} />
               ))
             : null}
         </section>
-      </main>
+      </PageShell>
 
       <BottomNavigation tabs={bottomTabs} activeTab="chat" onTabChange={handleTabChange} />
     </AuthGuard>
@@ -100,11 +138,26 @@ function ChatRoomsLoading() {
 }
 
 function ChatRoomsEmpty() {
+  const router = useRouter();
+
   return (
     <div className="rounded-card border border-dashed border-gray-100 bg-white p-5 text-center">
       <MessageCircle aria-hidden="true" className="mx-auto text-gray-500" size={24} />
       <h2 className="mt-3 text-body font-semibold text-gray-900">아직 채팅방이 없습니다</h2>
       <p className="mt-1 text-caption text-gray-500">매칭이 수락되면 동료와 채팅할 수 있어요.</p>
+      <Button type="button" className="mt-4 h-10" onClick={() => router.push('/matchings')}>
+        매칭 찾으러 가기
+      </Button>
+    </div>
+  );
+}
+
+function ChatRoomsNoSearchResult() {
+  return (
+    <div className="rounded-card border border-dashed border-gray-100 bg-white p-5 text-center">
+      <MessageCircle aria-hidden="true" className="mx-auto text-gray-500" size={24} />
+      <h2 className="mt-3 text-body font-semibold text-gray-900">검색 결과가 없습니다</h2>
+      <p className="mt-1 text-caption text-gray-500">상대 이름이나 경로를 다시 확인해주세요.</p>
     </div>
   );
 }

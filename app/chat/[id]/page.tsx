@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { AuthGuard } from '@/components/auth/AuthGuard';
+import { PageShell } from '@/components/ridy/PageShell';
 import { Button } from '@/components/ui/button';
 import { useMessagesQuery } from '@/hooks/useChatQueries';
 import { useChatSocket } from '@/hooks/useChatSocket';
@@ -36,7 +37,7 @@ export default function ChatRoomPage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pt-5 sm:px-page-tablet">
+      <PageShell ariaLabel="채팅방" className="lg:max-w-3xl">
         <header className="flex items-center gap-3" aria-label="채팅방 헤더">
           <Button type="button" variant="ghost" size="icon" aria-label="채팅 목록으로 돌아가기" onClick={() => router.push('/chat')}>
             <ArrowLeft aria-hidden="true" size={20} />
@@ -47,7 +48,7 @@ export default function ChatRoomPage() {
           </div>
         </header>
 
-        <section className="mt-5 flex-1 space-y-3 pb-24" aria-label="메시지 목록">
+        <section className="mt-5 flex-1 space-y-3 pb-[calc(6rem+env(safe-area-inset-bottom))]" aria-label="메시지 목록">
           {chatSocket.hasConnectionError ? (
             <p className="rounded-card border border-warning/20 bg-white p-3 text-caption font-semibold text-warning">
               실시간 연결이 불안정합니다. 메시지 이력은 계속 볼 수 있어요.
@@ -61,7 +62,12 @@ export default function ChatRoomPage() {
             : null}
         </section>
 
-        <form className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-md gap-2 border-t border-gray-100 bg-white p-4" onSubmit={handleSubmit}>
+        <form
+          role="form"
+          aria-label="메시지 입력 영역"
+          className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-md gap-2 border-t border-gray-100 bg-white p-4 pb-safe lg:max-w-3xl"
+          onSubmit={handleSubmit}
+        >
           <label className="sr-only" htmlFor="chat-message">
             메시지 입력
           </label>
@@ -77,7 +83,7 @@ export default function ChatRoomPage() {
             전송
           </Button>
         </form>
-      </main>
+      </PageShell>
     </AuthGuard>
   );
 }
@@ -86,7 +92,7 @@ function MessageBubble({ message }: { message: Message }) {
   const isMine = message.sender.name === '나';
 
   return (
-    <article className={isMine ? 'flex justify-end' : 'flex justify-start'}>
+    <article aria-label={isMine ? '내 메시지' : '상대 메시지'} className={isMine ? 'flex justify-end' : 'flex justify-start'}>
       <div className={isMine ? 'max-w-[78%] rounded-card bg-primary p-3 text-white' : 'max-w-[78%] rounded-card bg-white p-3 text-gray-900'}>
         <p className={isMine ? 'text-small font-semibold text-white/80' : 'text-small font-semibold text-gray-500'}>
           {message.sender.name}

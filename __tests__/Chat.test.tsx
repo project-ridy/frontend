@@ -114,6 +114,7 @@ describe('채팅 목록 화면', () => {
     renderWithAuth(<ChatPage />);
 
     expect(await screen.findByRole('heading', { name: '채팅' })).toBeInTheDocument();
+    expect(screen.getByLabelText('채팅방 검색')).toBeInTheDocument();
     expect(await screen.findByText('강남역 → 수원역')).toBeInTheDocument();
     expect(screen.getByText(/박준서/)).toBeInTheDocument();
     expect(screen.getByText('8시 30분 강남역 2번 출구에서 만나요')).toBeInTheDocument();
@@ -131,6 +132,7 @@ describe('채팅 목록 화면', () => {
 
     expect(await screen.findByText('아직 채팅방이 없습니다')).toBeInTheDocument();
     expect(screen.getByText('매칭이 수락되면 동료와 채팅할 수 있어요.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '매칭 찾으러 가기' })).toBeInTheDocument();
   });
 
   it('채팅방 목록 조회 실패 시 재시도 상태를 표시한다', async () => {
@@ -169,8 +171,11 @@ describe('채팅방 화면', () => {
 
     expect(await screen.findByRole('heading', { name: '채팅방' })).toBeInTheDocument();
     expect(await screen.findByText('내일 탑승 가능하신가요?')).toBeInTheDocument();
+    expect(screen.getByLabelText('상대 메시지')).toBeInTheDocument();
     expect(screen.getByText('네 가능합니다')).toBeInTheDocument();
+    expect(screen.getByLabelText('내 메시지')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('메시지 입력')).toBeInTheDocument();
+    expect(screen.getByRole('form', { name: '메시지 입력 영역' })).toHaveClass('pb-safe');
   });
 
   it('메시지가 없으면 빈 대화 안내를 표시한다', async () => {
