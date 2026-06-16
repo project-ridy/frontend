@@ -165,6 +165,9 @@ function HomeRideEmpty() {
         첫 카풀을 찾아보세요
       </h2>
       <p className="mt-1 text-caption text-gray-500">회사 동료의 출근길과 내 이동 경로를 맞춰볼 수 있어요.</p>
+      <Button type="button" className="mt-4 h-10">
+        조건 입력하고 매칭 찾기
+      </Button>
     </div>
   );
 }
