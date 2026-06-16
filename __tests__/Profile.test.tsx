@@ -119,6 +119,8 @@ describe('마이페이지', () => {
     renderWithAuth(<ProfilePage />);
 
     expect(await screen.findByRole('heading', { name: '마이페이지' })).toBeInTheDocument();
+    expect(screen.getByRole('main')).toHaveClass('lg:max-w-6xl');
+    expect(await screen.findByLabelText('활동 요약')).toBeInTheDocument();
     expect(await screen.findByText('김서연')).toBeInTheDocument();
     expect(await screen.findByText('seoyeon@techstarter.test')).toBeInTheDocument();
     expect(screen.getByText('테크스타터')).toBeInTheDocument();
@@ -126,6 +128,19 @@ describe('마이페이지', () => {
     expect(screen.getByText('42회 운행')).toBeInTheDocument();
     expect(screen.getByText('아이오닉 5')).toBeInTheDocument();
     expect(screen.getByText('12가 3456')).toBeInTheDocument();
+  });
+
+  it('차량이 없으면 단일 차량 등록 CTA를 표시한다', async () => {
+    server.use(
+      graphql.query('MyVehicles', () => {
+        return HttpResponse.json({ data: { myVehicles: [] } });
+      }),
+    );
+
+    renderWithAuth(<ProfilePage />);
+
+    expect(await screen.findByText('등록된 차량이 없습니다')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '차량 등록 준비하기' })).toBeInTheDocument();
   });
 
   it('프로필 수정 mutation을 호출한다', async () => {
@@ -200,6 +215,7 @@ describe('마이페이지', () => {
 
     expect(getAccessToken()).toBeNull();
     expect(push).toHaveBeenCalledWith('/login');
+    expect(screen.getByLabelText('위험 동작')).toBeInTheDocument();
   });
 
   it('조회 실패와 빈 차량 상태를 표시한다', async () => {

@@ -6,6 +6,7 @@ import { type FormEvent, useEffect, useState } from 'react';
 
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BottomNavigation } from '@/components/ridy/BottomNavigation';
+import { PageShell } from '@/components/ridy/PageShell';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -189,7 +190,7 @@ export default function ProfilePage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <PageShell bottomNavOffset>
         <header aria-label="마이페이지 헤더">
           <p className="text-small font-medium text-gray-500">내 카풀 활동 관리</p>
           <h1 className="mt-1 text-h2 text-gray-900">마이페이지</h1>
@@ -237,7 +238,7 @@ export default function ProfilePage() {
         ) : null}
 
         <AccountSection onLogout={handleLogout} />
-      </main>
+      </PageShell>
 
       <BottomNavigation tabs={bottomTabs} activeTab="profile" onTabChange={handleTabChange} />
     </AuthGuard>
@@ -246,7 +247,7 @@ export default function ProfilePage() {
 
 function ProfileSummary({ user }: { user: NonNullable<ReturnType<typeof useMeQuery>['data']> }) {
   return (
-    <Card className="mt-5">
+    <Card className="mt-5" aria-label="활동 요약">
       <CardContent className="p-4">
         <div className="flex items-center gap-4">
           <Avatar className="size-16" size="lg">
@@ -407,8 +408,12 @@ function VehicleSection({
         ) : null}
         {!isLoading && !isError && vehicles.length === 0 ? (
           <Card>
-            <CardContent className="p-4 text-center text-caption text-gray-500">
-              등록된 차량이 없습니다. 차량을 등록하면 차주로 운행할 수 있습니다.
+            <CardContent className="p-4 text-center">
+              <p className="text-body font-semibold text-gray-900">등록된 차량이 없습니다</p>
+              <p className="mt-1 text-caption text-gray-500">차량을 등록하면 차주로 운행할 수 있습니다.</p>
+              <Button type="button" className="mt-3 h-9" onClick={() => document.getElementById('vehicle-model')?.focus()}>
+                차량 등록 준비하기
+              </Button>
             </CardContent>
           </Card>
         ) : null}
@@ -604,7 +609,7 @@ function AccountSection({ onLogout }: { onLogout: () => void }) {
           <Button type="button" variant="outline" className="h-11 w-full" onClick={onLogout}>
             <LogOut aria-hidden="true" /> 로그아웃
           </Button>
-          <div className="rounded-card border border-danger/20 bg-white p-3 text-caption text-gray-600">
+          <div aria-label="위험 동작" className="rounded-card border border-danger/20 bg-white p-3 text-caption text-gray-600">
             <div className="flex items-center gap-2 font-semibold text-danger">
               <ShieldAlert aria-hidden="true" size={16} /> 회원탈퇴
             </div>
