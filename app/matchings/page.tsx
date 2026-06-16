@@ -7,6 +7,7 @@ import { Suspense, useMemo, useState } from 'react';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BottomNavigation } from '@/components/ridy/BottomNavigation';
 import { MatchingCard } from '@/components/ridy/MatchingCard';
+import { PageShell } from '@/components/ridy/PageShell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { createDefaultSearchInput, useSearchRidesQuery } from '@/hooks/useMatchingQueries';
@@ -70,7 +71,7 @@ function MatchingsPageContent() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <PageShell ariaLabel="매칭 결과" bottomNavOffset className="lg:max-w-5xl">
         <header className="flex items-center gap-3" aria-label="매칭 결과 헤더">
           <Button type="button" variant="ghost" size="icon" aria-label="뒤로가기" onClick={() => router.push('/')}>
             <ArrowLeft aria-hidden="true" size={20} />
@@ -99,6 +100,28 @@ function MatchingsPageContent() {
           </Card>
         </section>
 
+        <section className="mt-5" aria-label="검색 조건 필터">
+          <Card>
+            <CardContent className="space-y-3 p-4">
+              <div>
+                <h2 className="text-body font-semibold text-gray-900">필터</h2>
+                <p className="mt-1 text-caption text-gray-500">시간대, 잔여 좌석, 요금 기준으로 조건을 빠르게 좁혀요.</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Button type="button" variant="outline" className="h-10 px-2 text-caption">
+                  출근 시간대
+                </Button>
+                <Button type="button" variant="outline" className="h-10 px-2 text-caption">
+                  좌석 있음
+                </Button>
+                <Button type="button" variant="outline" className="h-10 px-2 text-caption">
+                  낮은 요금
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
         <section className="mt-5" aria-labelledby="sort-heading">
           <div className="mb-3 flex items-center gap-2">
             <ArrowUpDown aria-hidden="true" size={16} className="text-gray-500" />
@@ -121,7 +144,7 @@ function MatchingsPageContent() {
           </div>
         </section>
 
-        <section className="mt-5 space-y-gap-tight" aria-label="매칭 목록">
+        <section className="mt-5 space-y-gap-tight lg:grid lg:grid-cols-2 lg:gap-gap-normal lg:space-y-0" aria-label="매칭 목록">
           {searchRidesQuery.isPending ? <MatchingsLoading /> : null}
           {searchRidesQuery.isError ? (
             <MatchingsError onRetry={() => void searchRidesQuery.refetch()} />
@@ -148,7 +171,7 @@ function MatchingsPageContent() {
               ))
             : null}
         </section>
-      </main>
+      </PageShell>
 
       <BottomNavigation tabs={bottomTabs} activeTab="search" onTabChange={handleTabChange} />
     </AuthGuard>
@@ -158,7 +181,7 @@ function MatchingsPageContent() {
 function MatchingsPageFallback() {
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <PageShell ariaLabel="매칭 검색 중" bottomNavOffset className="lg:max-w-5xl">
         <header className="flex items-center gap-3" aria-label="매칭 결과 헤더">
           <div className="size-8" aria-hidden="true" />
           <div>
@@ -170,7 +193,7 @@ function MatchingsPageFallback() {
           <div className="h-28 rounded-card bg-gray-100" />
           <div className="h-28 rounded-card bg-gray-100" />
         </section>
-      </main>
+      </PageShell>
     </AuthGuard>
   );
 }

@@ -6,6 +6,8 @@ import { useState } from 'react';
 
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BottomNavigation } from '@/components/ridy/BottomNavigation';
+import { PageShell } from '@/components/ridy/PageShell';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRequestRideMutation, useRideDetailQuery } from '@/hooks/useMatchingQueries';
@@ -61,9 +63,15 @@ export default function MatchingDetailPage() {
     setIsRequestOpen(false);
   };
 
+  const ride = rideDetailQuery.data;
+  const hasPendingRequest = ride?.requests.some((request) => request.status === 'PENDING') ?? false;
+  const isFull = (ride?.availableSeats ?? 1) <= 0;
+  const isCancelled = ride?.status === 'CANCELLED';
+  const isRequestDisabled = requestSent || hasPendingRequest || isFull || isCancelled;
+
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <PageShell ariaLabel="매칭 상세" bottomNavOffset className="lg:max-w-5xl">
         <header className="flex items-center gap-3" aria-label="매칭 상세 헤더">
           <Button
             type="button"
@@ -88,7 +96,7 @@ export default function MatchingDetailPage() {
         ) : null}
         {rideDetailQuery.isSuccess ? (
           <>
-            <section className="mt-5 space-y-gap-normal" aria-label="카풀 상세 정보">
+            <section className="mt-5 space-y-gap-normal lg:grid lg:grid-cols-[1.2fr_0.8fr] lg:items-start lg:gap-gap-normal lg:space-y-0" aria-label="카풀 상세 정보">
               <Card>
                 <CardContent className="space-y-4 p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -110,7 +118,7 @@ export default function MatchingDetailPage() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card role="region" aria-label="차주 신뢰 정보">
                 <CardContent className="space-y-4 p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -128,6 +136,25 @@ export default function MatchingDetailPage() {
               </Card>
             </section>
 
+            <section className="mt-4 space-y-2" aria-label="요청 가능 상태">
+              {hasPendingRequest ? (
+                <div className="flex items-center justify-between rounded-card border border-orange-500/20 bg-orange-50 p-4">
+                  <p className="text-body font-semibold text-orange-700">요청 대기</p>
+                  <Badge variant="pending">PENDING</Badge>
+                </div>
+              ) : null}
+              {isCancelled ? (
+                <p className="rounded-card border border-danger/20 bg-white p-4 text-body font-semibold text-danger">
+                  운행이 취소되었습니다
+                </p>
+              ) : null}
+              {isFull ? (
+                <p className="rounded-card border border-gray-100 bg-white p-4 text-body font-semibold text-gray-700">
+                  남은 좌석이 없습니다
+                </p>
+              ) : null}
+            </section>
+
             {requestSent ? (
               <p className="mt-4 rounded-card bg-secondary/10 p-4 text-body font-semibold text-secondary">
                 탑승 요청을 보냈습니다
@@ -143,7 +170,7 @@ export default function MatchingDetailPage() {
             <Button
               type="button"
               className="mt-5 h-12 w-full"
-              disabled={requestSent}
+              disabled={isRequestDisabled}
               onClick={() => setIsRequestOpen(true)}
             >
               <MessageSquare aria-hidden="true" size={18} />
@@ -194,7 +221,7 @@ export default function MatchingDetailPage() {
             ) : null}
           </>
         ) : null}
-      </main>
+      </PageShell>
 
       <BottomNavigation tabs={bottomTabs} activeTab="search" onTabChange={handleTabChange} />
     </AuthGuard>

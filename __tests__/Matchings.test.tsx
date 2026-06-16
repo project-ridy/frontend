@@ -102,6 +102,10 @@ describe('매칭 결과 화면', () => {
     expect(await screen.findByRole('heading', { name: '매칭 결과' })).toBeInTheDocument();
     expect(screen.getByText('강남역 → 수원역')).toBeInTheDocument();
     expect(screen.getByText('2명의 동료')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '검색 조건 필터' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '출근 시간대' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '좌석 있음' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '낮은 요금' })).toBeInTheDocument();
     expect(screen.getByText('박준서')).toBeInTheDocument();
     expect(screen.getByText('이민수')).toBeInTheDocument();
     expect(screen.getByText('5,000원')).toBeInTheDocument();
@@ -185,9 +189,52 @@ describe('매칭 상세 화면', () => {
 
     expect(await screen.findByRole('heading', { name: '박준서' })).toBeInTheDocument();
     expect(screen.getByText('강남역 → 수원역')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '차주 신뢰 정보' })).toBeInTheDocument();
     expect(screen.getByText('평점 4.8')).toBeInTheDocument();
     expect(screen.getByText('운행 42회')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '탑승 요청' })).toBeInTheDocument();
+  });
+
+  it('이미 요청한 운행은 요청 상태 badge를 표시한다', async () => {
+    server.use(
+      graphql.query('RideDetail', () => {
+        return HttpResponse.json({
+          data: {
+            ride: {
+              ...rides[0],
+              requests: [{ id: 'request-1', status: 'PENDING' }],
+            },
+          },
+        });
+      }),
+    );
+
+    renderWithAuth(<MatchingDetailPage />);
+
+    expect(await screen.findByText('요청 대기')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '탑승 요청' })).toBeDisabled();
+  });
+
+  it('만석/취소 상태는 CTA를 disabled 처리하고 사유를 표시한다', async () => {
+    server.use(
+      graphql.query('RideDetail', () => {
+        return HttpResponse.json({
+          data: {
+            ride: {
+              ...rides[0],
+              availableSeats: 0,
+              status: 'CANCELLED',
+            },
+          },
+        });
+      }),
+    );
+
+    renderWithAuth(<MatchingDetailPage />);
+
+    expect(await screen.findByText('운행이 취소되었습니다')).toBeInTheDocument();
+    expect(screen.getByText('남은 좌석이 없습니다')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '탑승 요청' })).toBeDisabled();
   });
 
   it('메시지를 입력하고 탑승 요청을 보낸다', async () => {
