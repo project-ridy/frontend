@@ -12,19 +12,59 @@ import { saveAuthTokens, clearAuthTokens } from '@/lib/auth/token-storage';
 import { TestProviders } from '@/test/TestProviders';
 
 const push = vi.fn();
-const joinRequests: unknown[] = [];
+const loginRequests: unknown[] = [];
+const verificationRequests: unknown[] = [];
+const signupRequests: unknown[] = [];
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
 }));
 
 const server = setupServer(
-  graphql.mutation('JoinWithInviteCode', ({ variables }) => {
-    joinRequests.push(variables);
+  graphql.mutation('Login', ({ variables }) => {
+    loginRequests.push(variables);
 
     return HttpResponse.json({
       data: {
-        joinWithInviteCode: {
+        login: {
+          accessToken: 'access-token',
+          refreshToken: 'refresh-token',
+          user: {
+            id: 'user-1',
+            email: 'jane@company.com',
+            name: 'Jane',
+            phone: null,
+            imageUrl: null,
+            role: 'PASSENGER',
+            employeeId: null,
+            companyId: 'company-1',
+            rating: 0,
+            rideCount: 0,
+          },
+        },
+      },
+    });
+  }),
+  graphql.mutation('RequestCompanyEmailVerification', ({ variables }) => {
+    verificationRequests.push(variables);
+
+    return HttpResponse.json({
+      data: {
+        requestCompanyEmailVerification: {
+          id: 'challenge-1',
+          companyEmail: 'jane@company.com',
+          expiresAt: '2026-06-15T10:10:00.000Z',
+          resendAvailableAt: '2999-01-01T00:00:00.000Z',
+        },
+      },
+    });
+  }),
+  graphql.mutation('CompleteEmailPasswordSignup', ({ variables }) => {
+    signupRequests.push(variables);
+
+    return HttpResponse.json({
+      data: {
+        completeEmailPasswordSignup: {
           accessToken: 'access-token',
           refreshToken: 'refresh-token',
           user: {
@@ -84,14 +124,16 @@ const server = setupServer(
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   server.resetHandlers();
-  joinRequests.length = 0;
+  loginRequests.length = 0;
+  verificationRequests.length = 0;
+  signupRequests.length = 0;
   localStorage.clear();
   push.mockClear();
 });
 afterAll(() => server.close());
 
 describe('로그인/온보딩 플로우', () => {
-  it('로그인 화면은 초대 코드, 회사 이메일과 카카오/구글 로그인만 노출하고 Apple 로그인은 제거한다', () => {
+  it('OAuth 버튼 없이 이메일 로그인과 가입 폼을 노출한다', () => {
     render(
       <TestProviders>
         <LoginPage />
@@ -99,14 +141,14 @@ describe('로그인/온보딩 플로우', () => {
     );
 
     expect(screen.getByRole('heading', { name: /Ridy/ })).toBeInTheDocument();
-    expect(screen.getByLabelText('초대 코드')).toBeInTheDocument();
-    expect(screen.getByLabelText('회사 이메일')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '카카오로 계속하기' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '구글로 계속하기' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Apple|애플/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: '로그인' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: '가입' })).toBeInTheDocument();
+    expect(screen.getByLabelText('로그인 회사 이메일')).toBeInTheDocument();
+    expect(screen.getByLabelText('로그인 비밀번호')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /카카오|구글|Apple|애플/i })).not.toBeInTheDocument();
   });
 
-  it('초대 코드 없이 소셜 로그인을 누르면 유효성 메시지를 보여준다', async () => {
+  it('회사 이메일과 비밀번호로 로그인한다', async () => {
     const user = userEvent.setup();
 
     render(
@@ -115,77 +157,47 @@ describe('로그인/온보딩 플로우', () => {
       </TestProviders>,
     );
 
-    await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
-
-    expect(await screen.findByText('초대 코드를 입력해주세요.')).toBeInTheDocument();
-    expect(joinRequests).toHaveLength(0);
-  });
-
-  it('회사 이메일 없이 소셜 로그인을 누르면 유효성 메시지를 보여준다', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <TestProviders>
-        <LoginPage />
-      </TestProviders>,
-    );
-
-    await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
-    await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
-
-    expect(await screen.findByText('회사 이메일을 입력해주세요.')).toBeInTheDocument();
-    expect(joinRequests).toHaveLength(0);
-  });
-
-  it('회사 이메일 형식이 올바르지 않으면 요청하지 않고 유효성 메시지를 보여준다', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <TestProviders>
-        <LoginPage />
-      </TestProviders>,
-    );
-
-    await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
-    await user.type(screen.getByLabelText('회사 이메일'), 'jane-company');
-    await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
-
-    expect(await screen.findByText('올바른 회사 이메일을 입력해주세요.')).toBeInTheDocument();
-    expect(joinRequests).toHaveLength(0);
-  });
-
-  it('초대 코드와 회사 이메일로 카카오 로그인이 성공하면 companyEmail을 전달하고 프로필 설정으로 이동한다', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <TestProviders>
-        <LoginPage />
-      </TestProviders>,
-    );
-
-    await user.type(screen.getByLabelText('초대 코드'), ' abc123 ');
-    await user.type(screen.getByLabelText('회사 이메일'), ' jane@company.com ');
-    await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
+    await user.type(screen.getByLabelText('로그인 회사 이메일'), ' Jane@Company.COM ');
+    await user.type(screen.getByLabelText('로그인 비밀번호'), 'Password123');
+    await user.click(screen.getByRole('button', { name: '로그인' }));
 
     await waitFor(() => expect(localStorage.getItem('ridy.accessToken')).toBe('access-token'));
-    expect(joinRequests).toContainEqual({
+    expect(loginRequests).toContainEqual({
       input: {
-        inviteCode: 'ABC123',
         companyEmail: 'jane@company.com',
-        provider: 'kakao',
-        oauthToken: 'mock-kakao-oauth-token',
-        employeeId: null,
+        password: 'Password123',
       },
     });
     expect(localStorage.getItem('ridy.refreshToken')).toBe('refresh-token');
-    expect(push).toHaveBeenCalledWith('/profile/setup');
+    expect(push).toHaveBeenCalledWith('/');
   });
 
-  it('도메인 불일치 응답이면 backend 에러 메시지를 표시한다', async () => {
+  it('로그인 필수값이 없으면 요청하지 않는다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    await user.click(screen.getByRole('button', { name: '로그인' }));
+
+    expect(await screen.findByText('회사 이메일을 입력해주세요.')).toBeInTheDocument();
+    expect(loginRequests).toHaveLength(0);
+
+    await user.type(screen.getByLabelText('로그인 회사 이메일'), 'jane@company.com');
+    await user.click(screen.getByRole('button', { name: '로그인' }));
+
+    expect(await screen.findByText('비밀번호를 입력해주세요.')).toBeInTheDocument();
+    expect(loginRequests).toHaveLength(0);
+  });
+
+  it('로그인 에러를 표시한다', async () => {
     const user = userEvent.setup();
     server.use(
-      graphql.mutation('JoinWithInviteCode', () => {
-        return HttpResponse.json({ errors: [{ message: '회사 이메일 도메인이 일치하지 않습니다' }] });
+      graphql.mutation('Login', () => {
+        return HttpResponse.json({ errors: [{ message: '회사 이메일 또는 비밀번호가 올바르지 않습니다' }] });
       }),
     );
 
@@ -195,11 +207,144 @@ describe('로그인/온보딩 플로우', () => {
       </TestProviders>,
     );
 
-    await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
-    await user.type(screen.getByLabelText('회사 이메일'), 'jane@external.com');
-    await user.click(screen.getByRole('button', { name: '카카오로 계속하기' }));
+    await user.type(screen.getByLabelText('로그인 회사 이메일'), 'jane@company.com');
+    await user.type(screen.getByLabelText('로그인 비밀번호'), 'wrong-password');
+    await user.click(screen.getByRole('button', { name: '로그인' }));
 
-    expect(await screen.findByText('회사 이메일 도메인이 일치하지 않습니다')).toBeInTheDocument();
+    expect(await screen.findByText('회사 이메일 또는 비밀번호가 올바르지 않습니다')).toBeInTheDocument();
+  });
+
+  it('가입 코드와 회사 이메일로 인증코드를 요청한다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    await user.click(screen.getByRole('tab', { name: '가입' }));
+    await user.type(screen.getByLabelText('초대 코드'), ' abc123 ');
+    await user.type(screen.getByLabelText('회사 이메일'), ' jane@company.com ');
+    await user.click(screen.getByRole('button', { name: '인증코드 받기' }));
+
+    expect(await screen.findByLabelText('인증코드')).toBeInTheDocument();
+    expect(verificationRequests).toContainEqual({
+      input: {
+        inviteCode: 'ABC123',
+        companyEmail: 'jane@company.com',
+      },
+    });
+    expect(screen.getByRole('button', { name: '인증코드 재발송 대기' })).toBeDisabled();
+  });
+
+  it('잘못된 가입 입력이면 요청하지 않는다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    await user.click(screen.getByRole('tab', { name: '가입' }));
+    await user.click(screen.getByRole('button', { name: '인증코드 받기' }));
+
+    expect(await screen.findByText('초대 코드를 입력해주세요.')).toBeInTheDocument();
+    expect(verificationRequests).toHaveLength(0);
+
+    await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
+    await user.type(screen.getByLabelText('회사 이메일'), 'jane-company');
+    await user.click(screen.getByRole('button', { name: '인증코드 받기' }));
+
+    expect(await screen.findByText('올바른 회사 이메일을 입력해주세요.')).toBeInTheDocument();
+    expect(verificationRequests).toHaveLength(0);
+  });
+
+  it('인증코드와 비밀번호로 가입을 완료한다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    await user.click(screen.getByRole('tab', { name: '가입' }));
+    await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
+    await user.type(screen.getByLabelText('회사 이메일'), 'jane@company.com');
+    await user.click(screen.getByRole('button', { name: '인증코드 받기' }));
+    await user.type(await screen.findByLabelText('인증코드'), ' 123456 ');
+    await user.type(screen.getByLabelText('가입 비밀번호'), 'Password123');
+    await user.type(screen.getByLabelText('비밀번호 확인'), 'Password123');
+    await user.click(screen.getByRole('button', { name: '가입 완료' }));
+
+    await waitFor(() => expect(localStorage.getItem('ridy.accessToken')).toBe('access-token'));
+    expect(signupRequests).toContainEqual({
+      input: {
+        challengeId: 'challenge-1',
+        verificationCode: '123456',
+        password: 'Password123',
+      },
+    });
+    expect(push).toHaveBeenCalledWith('/profile/setup');
+  });
+
+  it('약한 비밀번호와 확인 불일치를 막는다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    await user.click(screen.getByRole('tab', { name: '가입' }));
+    await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
+    await user.type(screen.getByLabelText('회사 이메일'), 'jane@company.com');
+    await user.click(screen.getByRole('button', { name: '인증코드 받기' }));
+    await user.type(await screen.findByLabelText('인증코드'), '123456');
+    await user.type(screen.getByLabelText('가입 비밀번호'), 'weak');
+    await user.type(screen.getByLabelText('비밀번호 확인'), 'weak');
+    await user.click(screen.getByRole('button', { name: '가입 완료' }));
+
+    expect(await screen.findByText('비밀번호는 10자 이상이며 영문과 숫자를 포함해야 합니다.')).toBeInTheDocument();
+    expect(signupRequests).toHaveLength(0);
+
+    await user.clear(screen.getByLabelText('가입 비밀번호'));
+    await user.clear(screen.getByLabelText('비밀번호 확인'));
+    await user.type(screen.getByLabelText('가입 비밀번호'), 'Password123');
+    await user.type(screen.getByLabelText('비밀번호 확인'), 'Password456');
+    await user.click(screen.getByRole('button', { name: '가입 완료' }));
+
+    expect(await screen.findByText('비밀번호 확인이 일치하지 않습니다.')).toBeInTheDocument();
+    expect(signupRequests).toHaveLength(0);
+  });
+
+  it('인증코드 에러를 표시한다', async () => {
+    const user = userEvent.setup();
+    server.use(
+      graphql.mutation('CompleteEmailPasswordSignup', () => {
+        return HttpResponse.json({ errors: [{ message: '인증코드가 일치하지 않습니다' }] });
+      }),
+    );
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    await user.click(screen.getByRole('tab', { name: '가입' }));
+    await user.type(screen.getByLabelText('초대 코드'), 'ABC123');
+    await user.type(screen.getByLabelText('회사 이메일'), 'jane@company.com');
+    await user.click(screen.getByRole('button', { name: '인증코드 받기' }));
+    await user.type(await screen.findByLabelText('인증코드'), '000000');
+    await user.type(screen.getByLabelText('가입 비밀번호'), 'Password123');
+    await user.type(screen.getByLabelText('비밀번호 확인'), 'Password123');
+    await user.click(screen.getByRole('button', { name: '가입 완료' }));
+
+    expect(await screen.findByText('인증코드가 일치하지 않습니다')).toBeInTheDocument();
   });
 
   it('프로필 설정에서 차주 토글 시 차량 정보 입력 폼을 노출한다', async () => {

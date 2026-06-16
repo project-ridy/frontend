@@ -38,8 +38,17 @@ query MyVehicles {
   }
 }
 
-mutation JoinWithInviteCode($input: JoinWithInviteCodeInput!) {
-  joinWithInviteCode(input: $input) {
+mutation RequestCompanyEmailVerification($input: RequestCompanyEmailVerificationInput!) {
+  requestCompanyEmailVerification(input: $input) {
+    id
+    companyEmail
+    expiresAt
+    resendAvailableAt
+  }
+}
+
+mutation CompleteEmailPasswordSignup($input: CompleteEmailPasswordSignupInput!) {
+  completeEmailPasswordSignup(input: $input) {
     accessToken
     refreshToken
     user {
