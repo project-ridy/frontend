@@ -6,6 +6,7 @@ import { type FormEvent, useMemo, useState } from 'react';
 
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BottomNavigation } from '@/components/ridy/BottomNavigation';
+import { PageShell } from '@/components/ridy/PageShell';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -84,7 +85,7 @@ export default function PaymentsPage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <PageShell bottomNavOffset>
         <header aria-label="정산 화면 헤더">
           <p className="text-small font-medium text-gray-500">함께 탄 만큼 투명하게</p>
           <h1 className="mt-1 text-h2 text-gray-900">정산</h1>
@@ -141,7 +142,7 @@ export default function PaymentsPage() {
         ) : null}
 
         <PaymentMethodsSection methods={paymentMethodsQuery.data ?? []} isLoading={paymentMethodsQuery.isPending} />
-      </main>
+      </PageShell>
 
       <BottomNavigation tabs={bottomTabs} activeTab="profile" onTabChange={handleTabChange} />
     </AuthGuard>
@@ -150,7 +151,7 @@ export default function PaymentsPage() {
 
 function PaymentSummary({ summary }: { summary: PaymentSummaryData }) {
   return (
-    <section className="mt-5 grid grid-cols-2 gap-3" aria-label="정산 요약">
+    <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3" aria-label="이번 달 정산 현황">
       <Card>
         <CardContent className="p-4">
           <p className="text-caption text-gray-500">대기 정산</p>
@@ -163,7 +164,7 @@ function PaymentSummary({ summary }: { summary: PaymentSummaryData }) {
           <p className="mt-1 text-h2 text-gray-900">{formatPaymentAmount(summary.paidAmount)}</p>
         </CardContent>
       </Card>
-      <Card className="col-span-2 bg-primary text-white">
+      <Card className="col-span-2 bg-primary text-white lg:col-span-1">
         <CardContent className="flex items-center justify-between p-4">
           <div>
             <p className="text-caption text-white/80">차주 수익</p>

@@ -147,6 +147,8 @@ describe('정산 화면', () => {
     renderWithAuth(<PaymentsPage />);
 
     expect(await screen.findByRole('heading', { name: '정산' })).toBeInTheDocument();
+    expect(screen.getByRole('main')).toHaveClass('lg:max-w-6xl');
+    expect(screen.getByLabelText('이번 달 정산 현황')).toBeInTheDocument();
     expect(await screen.findByText('강남역 → 수원역')).toBeInTheDocument();
     expect(screen.getByText('대기 정산')).toBeInTheDocument();
     expect(screen.getByText('5,000원')).toBeInTheDocument();
