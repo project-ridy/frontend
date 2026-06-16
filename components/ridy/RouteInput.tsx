@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils';
 interface RouteInputProps {
   departure?: string;
   destination?: string;
+  departureLabel?: string;
+  destinationLabel?: string;
   onDepartureChange?: (value: string) => void;
   onDestinationChange?: (value: string) => void;
   className?: string;
@@ -16,6 +18,8 @@ interface RouteInputProps {
 export function RouteInput({
   departure,
   destination,
+  departureLabel = '출발지',
+  destinationLabel = '도착지',
   onDepartureChange,
   onDestinationChange,
   className,
@@ -33,12 +37,12 @@ export function RouteInput({
           value={departure}
           onChange={(e) => onDepartureChange?.(e.target.value)}
           className="h-input pl-10"
-          aria-label="출발지"
+          aria-label={departureLabel}
         />
       </div>
 
       <div className="flex items-center justify-center" aria-hidden="true">
-        <ArrowDown size={16} className="text-gray-400" />
+        <ArrowDown size={16} className="text-text-secondary" />
       </div>
 
       <div className="relative">
@@ -51,8 +55,8 @@ export function RouteInput({
           placeholder="도착지"
           value={destination}
           onChange={(e) => onDestinationChange?.(e.target.value)}
-          className="h-input pl-10"
-          aria-label="도착지"
+          className="h-input pl-10 focus-visible:border-primary"
+          aria-label={destinationLabel}
         />
       </div>
     </div>
