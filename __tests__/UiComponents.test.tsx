@@ -34,6 +34,43 @@ describe('기본 UI 컴포넌트', () => {
     expect(disabledClick).not.toHaveBeenCalled();
   });
 
+  it('목적별 버튼 variant를 렌더링한다', () => {
+    render(
+      <div>
+        <Button type="button">Primary</Button>
+        <Button type="button" variant="secondary">Secondary</Button>
+        <Button type="button" variant="ghost">Ghost</Button>
+        <Button type="button" variant="destructive">Destructive</Button>
+        <Button type="button" variant="action" aria-label="필터">F</Button>
+      </div>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Primary' })).toHaveClass('bg-primary');
+    expect(screen.getByRole('button', { name: 'Secondary' })).toHaveClass('border-primary');
+    expect(screen.getByRole('button', { name: 'Ghost' })).toHaveClass('bg-transparent');
+    expect(screen.getByRole('button', { name: 'Destructive' })).toHaveClass('bg-red-50');
+    expect(screen.getByRole('button', { name: '필터' })).toHaveClass('min-h-11');
+    expect(screen.getByRole('button', { name: '필터' })).toHaveClass('min-w-11');
+  });
+
+  it('모바일 주요 CTA touch target을 유지한다', () => {
+    render(<Button type="button" size="lg">주요 CTA</Button>);
+
+    expect(screen.getByRole('button', { name: '주요 CTA' })).toHaveClass('h-12');
+  });
+
+  it('disabled 버튼은 클릭되지 않는다', async () => {
+    const user = userEvent.setup();
+    const handleClick = vi.fn();
+
+    render(<Button type="button" disabled onClick={handleClick}>비활성 CTA</Button>);
+
+    await user.click(screen.getByRole('button', { name: '비활성 CTA' }));
+
+    expect(handleClick).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: '비활성 CTA' })).toHaveClass('disabled:cursor-not-allowed');
+  });
+
   it('Input은 label과 연결되고 입력 이벤트를 전달한다', async () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
@@ -49,6 +86,25 @@ describe('기본 UI 컴포넌트', () => {
 
     expect(handleChange).toHaveBeenCalled();
     expect(screen.getByLabelText('회사명')).toHaveValue('Ridy');
+  });
+
+  it('입력 필드 상태 class를 노출한다', () => {
+    render(
+      <div>
+        <label htmlFor="default-input">기본</label>
+        <Input id="default-input" />
+        <label htmlFor="error-input">오류</label>
+        <Input id="error-input" aria-invalid="true" />
+        <label htmlFor="disabled-input">비활성</label>
+        <Input id="disabled-input" disabled />
+      </div>,
+    );
+
+    expect(screen.getByLabelText('기본')).toHaveClass('h-input');
+    expect(screen.getByLabelText('기본')).toHaveClass('border-border-input');
+    expect(screen.getByLabelText('기본')).toHaveClass('focus-visible:border-primary');
+    expect(screen.getByLabelText('오류')).toHaveClass('aria-invalid:border-danger');
+    expect(screen.getByLabelText('비활성')).toHaveClass('disabled:bg-gray-100');
   });
 
   it('Card, Badge, Avatar fallback을 렌더링한다', () => {
@@ -70,6 +126,26 @@ describe('기본 UI 컴포넌트', () => {
     expect(screen.getByRole('region', { name: '카풀 카드' })).toBeInTheDocument();
     expect(screen.getByText('같은 회사')).toHaveClass('bg-secondary');
     expect(screen.getByText('리')).toBeInTheDocument();
+  });
+
+  it('상태 badge variant를 상태 텍스트와 함께 렌더링한다', () => {
+    render(
+      <div>
+        <Badge variant="open">OPEN</Badge>
+        <Badge variant="matched">MATCHED</Badge>
+        <Badge variant="pending">PENDING</Badge>
+        <Badge variant="failed">FAILED</Badge>
+        <Badge variant="cancelled">CANCELLED</Badge>
+        <Badge variant="neutral">차량 정보</Badge>
+      </div>,
+    );
+
+    expect(screen.getByText('OPEN')).toHaveClass('bg-blue-50');
+    expect(screen.getByText('MATCHED')).toHaveClass('bg-green-50');
+    expect(screen.getByText('PENDING')).toHaveClass('bg-orange-50');
+    expect(screen.getByText('FAILED')).toHaveClass('bg-red-50');
+    expect(screen.getByText('CANCELLED')).toHaveClass('bg-red-50');
+    expect(screen.getByText('차량 정보')).toHaveClass('bg-gray-100');
   });
 
   it('Tabs는 기본 tablist와 선택된 content를 렌더링한다', async () => {

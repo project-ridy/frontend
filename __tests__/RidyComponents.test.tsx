@@ -17,6 +17,20 @@ describe('MatchingCard', () => {
     availableSeats: 3,
   };
 
+  it('MatchingCard가 상태와 CTA를 예측 가능한 순서로 표시한다', () => {
+    render(<MatchingCard {...defaultProps} status="OPEN" ctaLabel="탑승 요청" />);
+
+    const card = screen.getByLabelText('김민수 카풀 카드');
+    const text = card.textContent ?? '';
+
+    expect(text.indexOf('김민수')).toBeLessThan(text.indexOf('강남역'));
+    expect(text.indexOf('강남역')).toBeLessThan(text.indexOf('5,000원'));
+    expect(text.indexOf('5,000원')).toBeLessThan(text.indexOf('3석 남음'));
+    expect(text.indexOf('3석 남음')).toBeLessThan(text.indexOf('OPEN'));
+    expect(screen.getByText('OPEN')).toHaveClass('bg-blue-50');
+    expect(screen.getByRole('button', { name: '탑승 요청' })).toBeInTheDocument();
+  });
+
   it('운전자 이름, 출발지/도착지, 시간, 요금, 잔여석을 렌더링한다', () => {
     render(<MatchingCard {...defaultProps} />);
 
@@ -57,6 +71,35 @@ describe('MatchingCard', () => {
     await user.keyboard(' ');
 
     expect(handleClick).toHaveBeenCalledTimes(2);
+  });
+
+  it('클릭 가능한 카드 keyboard activation을 지원한다', async () => {
+    const user = userEvent.setup();
+    const handleClick = vi.fn();
+    render(<MatchingCard {...defaultProps} onClick={handleClick} status="OPEN" />);
+
+    const card = screen.getByRole('button', { name: '김민수 카풀 카드' });
+    card.focus();
+    await user.keyboard('{Enter}');
+
+    expect(handleClick).toHaveBeenCalledOnce();
+  });
+
+  it('만석/긴 경로에서도 레이아웃이 유지된다', () => {
+    render(
+      <MatchingCard
+        {...defaultProps}
+        departure="서울특별시 강남구 테헤란로 긴 출발지 이름"
+        destination="경기도 성남시 분당구 판교역 매우 긴 도착지 이름"
+        availableSeats={0}
+        status="MATCHED"
+      />,
+    );
+
+    expect(screen.getByText(/서울특별시/)).toHaveClass('truncate');
+    expect(screen.getByText(/경기도 성남시/)).toHaveClass('truncate');
+    expect(screen.getByText('만석')).toBeInTheDocument();
+    expect(screen.getByText('MATCHED')).toHaveClass('bg-green-50');
   });
 
   it('onClick이 없어도 카드 내용을 렌더링하고 button role을 강제하지 않는다', () => {
@@ -117,6 +160,29 @@ describe('RouteInput', () => {
     expect(screen.getByLabelText('출발지')).toHaveClass('h-input');
     expect(screen.getByLabelText('도착지')).toHaveClass('h-input');
   });
+
+  it('RouteInput label과 변경 이벤트를 유지한다', async () => {
+    const user = userEvent.setup();
+    const handleDepartureChange = vi.fn();
+    const handleDestinationChange = vi.fn();
+
+    render(
+      <RouteInput
+        departureLabel="출근 출발지"
+        destinationLabel="출근 도착지"
+        onDepartureChange={handleDepartureChange}
+        onDestinationChange={handleDestinationChange}
+      />,
+    );
+
+    await user.type(screen.getByLabelText('출근 출발지'), '강남');
+    await user.type(screen.getByLabelText('출근 도착지'), '판교');
+
+    expect(handleDepartureChange).toHaveBeenCalled();
+    expect(handleDestinationChange).toHaveBeenCalled();
+    expect(screen.getByLabelText('출근 출발지')).toHaveClass('h-input');
+    expect(screen.getByLabelText('출근 도착지')).toHaveClass('focus-visible:border-primary');
+  });
 });
 
 describe('BottomNavigation', () => {
@@ -149,6 +215,14 @@ describe('BottomNavigation', () => {
     render(<BottomNavigation tabs={tabs} activeTab="home" onTabChange={vi.fn()} />);
 
     expect(screen.getByLabelText('홈')).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('BottomNavigation active tab을 token과 aria-current로 표시한다', () => {
+    render(<BottomNavigation tabs={tabs} activeTab="search" onTabChange={vi.fn()} />);
+
+    expect(screen.getByLabelText('검색')).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByLabelText('검색')).toHaveClass('text-primary');
+    expect(screen.getByLabelText('홈')).toHaveClass('text-text-secondary');
   });
 
   it('탭 클릭 시 onTabChange가 호출된다', async () => {

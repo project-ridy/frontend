@@ -35,7 +35,7 @@ export function BottomNavigation({
   return (
     <nav
       className={cn(
-        'fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white pb-safe',
+        'fixed inset-x-0 bottom-0 z-50 border-t border-border-default bg-surface pb-safe',
         className,
       )}
       aria-label="하단 내비게이션"
@@ -56,7 +56,7 @@ export function BottomNavigation({
                   'flex flex-col items-center gap-0.5 px-4 py-2 text-caption transition-colors',
                   isActive
                     ? 'text-primary font-semibold'
-                    : 'text-gray-500 hover:text-gray-900',
+                    : 'text-text-secondary hover:text-text-primary',
                 )}
               >
                 <Icon aria-hidden="true" size={20} />

@@ -148,6 +148,31 @@ describe('로그인/온보딩 플로우', () => {
     expect(screen.queryByRole('button', { name: /카카오|구글|Apple|애플/i })).not.toBeInTheDocument();
   });
 
+  it('인증 탭 active 상태를 aria-selected와 token으로 표시한다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    const loginTab = screen.getByRole('tab', { name: '로그인' });
+    const signupTab = screen.getByRole('tab', { name: '가입' });
+
+    expect(loginTab).toHaveAttribute('aria-selected', 'true');
+    expect(loginTab).toHaveClass('bg-surface');
+    expect(loginTab).toHaveClass('text-primary');
+    expect(signupTab).toHaveAttribute('aria-selected', 'false');
+
+    await user.click(signupTab);
+
+    expect(signupTab).toHaveAttribute('aria-selected', 'true');
+    expect(signupTab).toHaveClass('bg-surface');
+    expect(signupTab).toHaveClass('text-primary');
+    expect(loginTab).toHaveAttribute('aria-selected', 'false');
+  });
+
   it('회사 이메일과 비밀번호로 로그인한다', async () => {
     const user = userEvent.setup();
 
