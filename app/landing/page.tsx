@@ -110,7 +110,10 @@ export default function LandingPage() {
         </Link>
       </header>
 
-      <section className="relative overflow-hidden px-5 pb-16 pt-8 sm:px-8 sm:pb-24 sm:pt-16" aria-labelledby="landing-hero-heading">
+      <section
+        className="relative overflow-hidden px-5 pb-16 pt-8 sm:px-8 sm:pb-24 sm:pt-16"
+        aria-label="랜딩 히어로"
+      >
         <div className="absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
@@ -140,7 +143,7 @@ export default function LandingPage() {
                 <p className="mt-2 text-h2">강남역 → 판교역</p>
                 <p className="mt-2 text-caption text-white/80">08:30 출발 · 2석 남음 · 같은 회사 인증</p>
               </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-3" id="proof">
+              <div className="mt-4 grid gap-3 sm:grid-cols-3" id="proof" role="region" aria-label="Ridy 신뢰 지표">
                 {proofStats.map((stat) => (
                   <div key={stat.label} className="rounded-lg bg-gray-50 p-3">
                     <p className="text-body font-semibold text-gray-900">{stat.label}</p>
