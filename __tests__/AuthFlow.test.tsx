@@ -148,6 +148,19 @@ describe('로그인/온보딩 플로우', () => {
     expect(screen.queryByRole('button', { name: /카카오|구글|Apple|애플/i })).not.toBeInTheDocument();
   });
 
+  it('로그인/가입 화면은 단일 primary CTA와 token 기반 안내를 표시한다', () => {
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    expect(screen.getByRole('main', { name: 'Ridy 인증 화면' })).toBeInTheDocument();
+    expect(screen.getByText('초대 코드와 회사 이메일 인증으로 회사 구성원만 연결해요.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '로그인' })).toHaveClass('w-full');
+    expect(screen.getAllByRole('button', { name: '로그인' })).toHaveLength(1);
+  });
+
   it('인증 탭 active 상태를 aria-selected와 token으로 표시한다', async () => {
     const user = userEvent.setup();
 

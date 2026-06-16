@@ -162,7 +162,7 @@ export function LoginForm() {
   };
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-page-mobile py-8 sm:px-page-tablet">
+    <main aria-label="Ridy 인증 화면" className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-page-mobile py-8 sm:px-page-tablet">
       <Card className="border-gray-100 shadow-lg">
         <CardHeader className="items-center text-center">
           <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-primary text-white shadow-sm">
@@ -170,6 +170,9 @@ export function LoginForm() {
           </div>
           <h1 className="text-h1 font-bold text-gray-900">Ridy</h1>
           <CardDescription className="text-body text-gray-500">회사 이메일로 안전하게 이용하세요</CardDescription>
+          <p className="mt-2 rounded-xl bg-primary-subtle px-3 py-2 text-small font-medium text-primary">
+            초대 코드와 회사 이메일 인증으로 회사 구성원만 연결해요.
+          </p>
         </CardHeader>
 
         <CardContent className="space-y-gap-normal">
