@@ -48,7 +48,7 @@ describe('기본 UI 컴포넌트', () => {
     expect(screen.getByRole('button', { name: 'Primary' })).toHaveClass('bg-primary');
     expect(screen.getByRole('button', { name: 'Secondary' })).toHaveClass('border-primary');
     expect(screen.getByRole('button', { name: 'Ghost' })).toHaveClass('bg-transparent');
-    expect(screen.getByRole('button', { name: 'Destructive' })).toHaveClass('bg-red-50');
+    expect(screen.getByRole('button', { name: 'Destructive' })).toHaveClass('bg-danger/10');
     expect(screen.getByRole('button', { name: '필터' })).toHaveClass('min-h-11');
     expect(screen.getByRole('button', { name: '필터' })).toHaveClass('min-w-11');
   });
@@ -140,12 +140,36 @@ describe('기본 UI 컴포넌트', () => {
       </div>,
     );
 
-    expect(screen.getByText('OPEN')).toHaveClass('bg-blue-50');
-    expect(screen.getByText('MATCHED')).toHaveClass('bg-green-50');
+    expect(screen.getByText('OPEN')).toHaveClass('bg-primary-subtle');
+    expect(screen.getByText('MATCHED')).toHaveClass('bg-secondary/10');
     expect(screen.getByText('PENDING')).toHaveClass('bg-orange-50');
-    expect(screen.getByText('FAILED')).toHaveClass('bg-red-50');
-    expect(screen.getByText('CANCELLED')).toHaveClass('bg-red-50');
+    expect(screen.getByText('FAILED')).toHaveClass('bg-danger/10');
+    expect(screen.getByText('CANCELLED')).toHaveClass('bg-danger/10');
     expect(screen.getByText('차량 정보')).toHaveClass('bg-surface-secondary');
+  });
+
+  it('FE-KT-PURE-004: 상태 badge가 문서화된 semantic token만 사용한다', () => {
+    render(
+      <div>
+        <Badge variant="open">OPEN</Badge>
+        <Badge variant="matched">MATCHED</Badge>
+        <Badge variant="failed">FAILED</Badge>
+      </div>,
+    );
+
+    const renderedClasses = [
+      screen.getByText('OPEN').className,
+      screen.getByText('MATCHED').className,
+      screen.getByText('FAILED').className,
+    ].join(' ');
+
+    expect(renderedClasses).not.toContain('blue-900');
+    expect(renderedClasses).not.toContain('green-50');
+    expect(renderedClasses).not.toContain('green-700');
+    expect(renderedClasses).toContain('bg-primary-subtle');
+    expect(renderedClasses).toContain('text-primary');
+    expect(renderedClasses).toContain('bg-secondary/10');
+    expect(renderedClasses).toContain('text-secondary');
   });
 
   it('Tabs는 기본 tablist와 선택된 content를 렌더링한다', async () => {
