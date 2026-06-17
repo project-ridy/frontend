@@ -37,7 +37,7 @@ export default function EcoImpactPage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-36 pt-5 sm:px-page-tablet">
         <header aria-label="친환경 임팩트 화면 헤더">
           <p className="text-small font-medium text-secondary">함께 달린 만큼 지구에 남긴 변화</p>
           <h1 className="mt-1 text-h2 text-gray-900">친환경 임팩트</h1>
@@ -74,9 +74,9 @@ function EcoImpactLoading() {
 
 function EcoImpactError({ onRetry }: { onRetry: () => void }) {
   return (
-    <section className="mt-5 rounded-card border border-danger/20 bg-white p-5 text-center" aria-label="친환경 임팩트 오류">
+    <section className="mt-5 rounded-card border border-orange-100 bg-orange-50/60 p-5 text-center" aria-label="친환경 임팩트 오류">
       <p className="text-body font-semibold text-gray-900">친환경 임팩트를 불러오지 못했습니다.</p>
-      <p className="mt-1 text-caption text-gray-500">잠시 후 다시 시도해 주세요.</p>
+      <p className="mt-1 text-caption text-gray-500">연결이 불안정해요. 잠시 후 다시 확인해주세요.</p>
       <Button type="button" className="mt-4" onClick={onRetry}>
         <RefreshCw aria-hidden="true" size={16} />
         다시 시도
