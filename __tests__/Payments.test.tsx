@@ -156,6 +156,17 @@ describe('정산 화면', () => {
     expect(screen.getByText('회사 부담 125원')).toBeInTheDocument();
   });
 
+  it('FE-KT-008: 정산 화면이 KT feedback hierarchy를 따른다', async () => {
+    renderWithAuth(<PaymentsPage />);
+
+    expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
+    expect(await screen.findByLabelText('정산 요약')).toHaveClass('gap-3');
+    expect(screen.getByText('대기 정산').closest('[data-slot="card"]')).toHaveClass('bg-surface');
+    expect(screen.getByText('차주 수익').closest('[data-slot="card"]')).toHaveClass('bg-primary');
+    expect(await screen.findByText('강남역 → 수원역')).toHaveClass('text-text-primary');
+    expect(screen.getByText('회사 부담 125원')).toHaveClass('bg-surface-secondary', 'text-text-secondary');
+  });
+
   it('정산 상태 필터가 동작한다', async () => {
     const user = userEvent.setup();
     renderWithAuth(<PaymentsPage />);
