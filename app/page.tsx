@@ -71,8 +71,7 @@ export default function Home() {
         </header>
 
         <section className="mt-6 lg:sticky lg:top-6" aria-label="경로 검색" aria-labelledby="route-search-heading">
-          <Card className="overflow-hidden border-white/70 bg-white/92 shadow-4">
-            <div className="h-2 bg-gradient-to-r from-primary via-primary/70 to-secondary" aria-hidden="true" />
+          <Card className="border-border-default bg-surface shadow-2">
             <CardContent className="space-y-gap-normal p-4">
               <div>
                 <Badge className="bg-secondary/10 text-secondary hover:bg-secondary/10">

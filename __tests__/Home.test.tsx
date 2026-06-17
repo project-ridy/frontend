@@ -186,4 +186,16 @@ describe('홈 화면', () => {
 
     expect(screen.getByLabelText('홈')).toHaveClass('min-h-11');
   });
+
+  it('FE-KT-PURE-003: 홈 검색 카드가 gradient strip 없이 KT surface hierarchy를 사용한다', async () => {
+    renderAuthenticatedHome();
+
+    const routeSearchSection = await screen.findByRole('region', { name: '어디로 가세요?' });
+
+    expect(routeSearchSection.innerHTML).not.toContain('bg-gradient-to-r');
+    expect(routeSearchSection.innerHTML).not.toContain('from-primary');
+    expect(routeSearchSection.innerHTML).not.toContain('to-secondary');
+    expect(routeSearchSection.innerHTML).not.toContain('shadow-4');
+    expect(routeSearchSection.innerHTML).toContain('bg-surface');
+  });
 });
