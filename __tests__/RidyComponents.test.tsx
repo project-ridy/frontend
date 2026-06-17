@@ -24,11 +24,48 @@ describe('MatchingCard', () => {
     const text = card.textContent ?? '';
 
     expect(text.indexOf('김민수')).toBeLessThan(text.indexOf('강남역'));
+    expect(text.indexOf('OPEN')).toBeLessThan(text.indexOf('강남역'));
     expect(text.indexOf('강남역')).toBeLessThan(text.indexOf('5,000원'));
     expect(text.indexOf('5,000원')).toBeLessThan(text.indexOf('3석 남음'));
-    expect(text.indexOf('3석 남음')).toBeLessThan(text.indexOf('OPEN'));
     expect(screen.getByText('OPEN')).toHaveClass('bg-blue-50');
     expect(screen.getByRole('button', { name: '탑승 요청' })).toBeInTheDocument();
+  });
+
+  it('FE-KT-006: KT MatchingCard hierarchy와 Gray-first 상태 규칙을 따른다', () => {
+    render(<MatchingCard {...defaultProps} status="OPEN" ctaLabel="탑승 요청" />);
+
+    const card = screen.getByLabelText('김민수 카풀 카드');
+
+    expect(card).toHaveClass('bg-surface');
+    expect(card).toHaveClass('rounded-ridy-lg');
+    expect(card).toHaveClass('shadow-1');
+    expect(card).not.toHaveClass('bg-surface-raised');
+
+    expect(screen.getByText('김민수')).toHaveClass('text-text-primary');
+    expect(screen.getByText('08:30')).toHaveClass('text-text-tertiary');
+    expect(screen.getByText('강남역')).toHaveClass('text-text-primary');
+    expect(screen.getByText('판교역')).toHaveClass('text-text-primary');
+    expect(screen.getByText('5,000원')).toHaveClass('text-text-primary');
+    expect(screen.getByText('3석 남음')).toHaveClass('text-primary');
+
+    expect(screen.getByText('OPEN')).toHaveClass('bg-blue-50');
+    expect(screen.getByRole('button', { name: '탑승 요청' })).toHaveClass('min-h-11');
+  });
+
+  it('FE-KT-006: 만석 상태는 CTA 대신 badge와 사유 문구를 표시한다', () => {
+    render(
+      <MatchingCard
+        {...defaultProps}
+        availableSeats={0}
+        status="MATCHED"
+        ctaLabel="탑승 요청"
+      />,
+    );
+
+    expect(screen.getByText('MATCHED')).toHaveClass('bg-green-50');
+    expect(screen.getByText('만석')).toHaveClass('text-primary');
+    expect(screen.getByText('잔여 좌석이 없어 요청할 수 없습니다.')).toHaveClass('text-text-secondary');
+    expect(screen.queryByRole('button', { name: '탑승 요청' })).not.toBeInTheDocument();
   });
 
   it('운전자 이름, 출발지/도착지, 시간, 요금, 잔여석을 렌더링한다', () => {
@@ -47,7 +84,7 @@ describe('MatchingCard', () => {
 
     const card = screen.getByRole('button');
 
-    expect(card).toHaveClass('rounded-xl');
+    expect(card).toHaveClass('rounded-ridy-lg');
     expect(card).toHaveClass('hover:shadow-md');
     expect(card).toHaveAttribute('tabindex', '0');
   });
