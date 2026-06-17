@@ -84,7 +84,7 @@ const structuredData = {
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-900">
+    <main className="min-h-screen bg-surface-muted text-text-primary">
       <script
         type="application/ld+json"
         data-testid="landing-structured-data"
@@ -94,14 +94,14 @@ export default function LandingPage() {
         <Link href="/landing" className="text-h3 font-bold text-primary" aria-label="Ridy 랜딩 홈">
           Ridy
         </Link>
-        <nav className="hidden items-center gap-6 text-caption font-medium text-gray-500 sm:flex" aria-label="랜딩 내비게이션">
-          <a href="#features" className="hover:text-gray-900">
+        <nav className="hidden items-center gap-6 text-caption font-medium text-text-tertiary sm:flex" aria-label="랜딩 내비게이션">
+          <a href="#features" className="hover:text-text-primary">
             서비스
           </a>
-          <a href="#how-it-works" className="hover:text-gray-900">
+          <a href="#how-it-works" className="hover:text-text-primary">
             이용 방법
           </a>
-          <a href="#proof" className="hover:text-gray-900">
+          <a href="#proof" className="hover:text-text-primary">
             임팩트
           </a>
         </nav>
@@ -111,31 +111,37 @@ export default function LandingPage() {
       </header>
 
       <section className="relative overflow-hidden px-5 pb-16 pt-8 sm:px-8 sm:pb-24 sm:pt-16" aria-labelledby="landing-hero-heading">
-        <div className="absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_20%_10%,rgba(37,99,235,0.22),transparent_34%),radial-gradient(circle_at_90%_20%,rgba(16,185,129,0.18),transparent_28%)]" />
+        <div className="absolute left-1/2 top-12 h-80 w-80 -translate-x-1/2 rounded-full bg-white/60 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
             <Badge className="bg-secondary/10 text-secondary hover:bg-secondary/10">
               회사 전용 출퇴근 카풀
             </Badge>
-            <h1 id="landing-hero-heading" className="mt-5 max-w-3xl text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+            <h1 id="landing-hero-heading" className="mt-5 max-w-3xl text-4xl font-bold tracking-tight text-text-primary sm:text-6xl">
               함께 타는 출퇴근, 더 가벼운 하루
             </h1>
-            <p className="mt-5 max-w-2xl text-body leading-7 text-gray-500 sm:text-lg">
+            <p className="mt-5 max-w-2xl text-body leading-7 text-text-secondary sm:text-lg">
               같은 회사 동료와 안전하게 매칭하고, 정산까지 한 번에 관리하세요.
             </p>
+            <div className="mt-5 flex flex-wrap gap-2 text-caption font-semibold text-text-secondary">
+              <span className="rounded-pill bg-white/75 px-3 py-1 shadow-1">초대 코드 인증</span>
+              <span className="rounded-pill bg-white/75 px-3 py-1 shadow-1">회사 단위 보호</span>
+              <span className="rounded-pill bg-white/75 px-3 py-1 shadow-1">운행 후 자동 정산</span>
+            </div>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link href="/login" className={cn(buttonVariants(), 'h-12 px-6 text-body')}>
                 초대 코드로 시작하기 <ArrowRight aria-hidden="true" size={18} />
               </Link>
-              <a href="#how-it-works" className={cn(buttonVariants({ variant: 'outline' }), 'h-12 px-6 text-body')}>
+              <a href="#how-it-works" className={cn(buttonVariants({ variant: 'secondary' }), 'h-12 px-6 text-body')}>
                 서비스 보기
               </a>
             </div>
           </div>
 
-          <Card className="border-primary/10 bg-white shadow-sm">
+          <Card className="border-white/70 bg-white/88 shadow-4 backdrop-blur-xl">
             <CardContent className="p-5 sm:p-6">
-              <div className="rounded-card bg-primary p-5 text-white">
+              <div className="rounded-[1.5rem] bg-primary p-5 text-white shadow-[0_20px_50px_rgba(37,99,235,0.28)]">
                 <p className="text-caption text-white/80">오늘의 추천 카풀</p>
                 <p className="mt-2 text-h2">강남역 → 판교역</p>
                 <p className="mt-2 text-caption text-white/80">08:30 출발 · 2석 남음 · 같은 회사 인증</p>

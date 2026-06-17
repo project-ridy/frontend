@@ -35,4 +35,21 @@ describe('랜딩 페이지', () => {
     );
     expect(screen.getByTestId('landing-structured-data')).toHaveTextContent('SoftwareApplication');
   });
+
+  it('FE-KT-004: 랜딩 화면이 KT Gray-first hierarchy와 단일 hero primary CTA를 사용한다', () => {
+    render(<LandingPage />);
+
+    const main = screen.getByRole('main');
+    const heading = screen.getByRole('heading', { name: /함께 타는 출퇴근/ });
+    const primaryCta = screen.getByRole('link', { name: /초대 코드로 시작하기/ });
+    const secondaryCta = screen.getByRole('link', { name: '서비스 보기' });
+
+    expect(main).toHaveClass('bg-surface-muted');
+    expect(main).toHaveClass('text-text-primary');
+    expect(heading).toHaveClass('text-text-primary');
+    expect(primaryCta).toHaveClass('bg-primary');
+    expect(primaryCta).toHaveClass('h-12');
+    expect(secondaryCta).toHaveClass('border-primary');
+    expect(secondaryCta).not.toHaveClass('bg-primary');
+  });
 });
