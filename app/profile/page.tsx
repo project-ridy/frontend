@@ -189,10 +189,10 @@ export default function ProfilePage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet lg:max-w-6xl lg:px-page-desktop lg:pb-page-desktop">
         <header aria-label="마이페이지 헤더">
-          <p className="text-small font-medium text-gray-500">내 카풀 활동 관리</p>
-          <h1 className="mt-1 text-h2 text-gray-900">마이페이지</h1>
+          <p className="text-small font-medium text-text-tertiary-on-muted">내 카풀 활동 관리</p>
+          <h1 className="mt-1 text-h2 text-text-primary">마이페이지</h1>
         </header>
 
         {meQuery.isPending ? <ProfileLoading /> : null}
@@ -231,7 +231,7 @@ export default function ProfilePage() {
         />
 
         {message ? (
-          <p className="mt-4 rounded-card bg-primary/10 px-4 py-3 text-caption font-medium text-primary">
+          <p className="mt-4 rounded-ridy-lg bg-primary-subtle px-4 py-3 text-caption font-medium text-primary">
             {message}
           </p>
         ) : null}
@@ -257,25 +257,25 @@ function ProfileSummary({ user }: { user: NonNullable<ReturnType<typeof useMeQue
           </Avatar>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className="text-h3 text-gray-900">{user.name}</p>
+              <p className="text-h3 text-text-primary">{user.name}</p>
               <Badge variant="secondary">{roleLabel(user.role)}</Badge>
             </div>
-            <p className="mt-1 truncate text-caption text-gray-500">{user.email}</p>
-            <p className="mt-1 text-caption text-gray-500">{user.company?.name ?? '회사 정보 없음'}</p>
+            <p className="mt-1 truncate text-caption text-text-tertiary">{user.email}</p>
+            <p className="mt-1 text-caption text-text-tertiary">{user.company?.name ?? '회사 정보 없음'}</p>
           </div>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2 text-center text-caption">
-          <div className="rounded-lg bg-gray-50 px-2 py-3">
-            <p className="font-semibold text-gray-900">평점 {user.rating.toFixed(1)}</p>
-            <p className="mt-1 text-gray-500">받은 평가</p>
+          <div className="rounded-ridy-md bg-surface-secondary px-2 py-3">
+            <p className="font-semibold text-text-primary">평점 {user.rating.toFixed(1)}</p>
+            <p className="mt-1 text-text-tertiary">받은 평가</p>
           </div>
-          <div className="rounded-lg bg-gray-50 px-2 py-3">
-            <p className="font-semibold text-gray-900">{user.rideCount}회 운행</p>
-            <p className="mt-1 text-gray-500">누적 활동</p>
+          <div className="rounded-ridy-md bg-surface-secondary px-2 py-3">
+            <p className="font-semibold text-text-primary">{user.rideCount}회 운행</p>
+            <p className="mt-1 text-text-tertiary">누적 활동</p>
           </div>
-          <div className="rounded-lg bg-gray-50 px-2 py-3">
-            <p className="font-semibold text-gray-900">{user.employeeId ?? '-'}</p>
-            <p className="mt-1 text-gray-500">사번</p>
+          <div className="rounded-ridy-md bg-surface-secondary px-2 py-3">
+            <p className="font-semibold text-text-primary">{user.employeeId ?? '-'}</p>
+            <p className="mt-1 text-text-tertiary">사번</p>
           </div>
         </div>
       </CardContent>
@@ -295,8 +295,8 @@ function ProfileForm({
   return (
     <section className="mt-5" aria-labelledby="profile-edit-heading">
       <div className="mb-3 flex items-center gap-2">
-        <UserRound aria-hidden="true" size={18} className="text-gray-500" />
-        <h2 id="profile-edit-heading" className="text-body font-semibold text-gray-900">
+        <UserRound aria-hidden="true" size={18} className="text-text-tertiary-on-muted" />
+        <h2 id="profile-edit-heading" className="text-body font-semibold text-text-primary">
           프로필 수정
         </h2>
       </div>
@@ -328,12 +328,12 @@ function ProfileForm({
                 onChange={(event) => setForm({ ...form, employeeId: event.target.value })}
               />
             </Field>
-            <label className="block text-caption font-medium text-gray-700" htmlFor="role">
+            <label className="block text-caption font-medium text-text-secondary" htmlFor="role">
               역할
             </label>
             <select
               id="role"
-              className="h-10 w-full rounded-lg border border-input bg-white px-3 text-body"
+              className="h-10 w-full rounded-ridy-md border border-border-input bg-surface px-3 text-body text-text-primary"
               value={form.role}
               onChange={(event) => setForm({ ...form, role: event.target.value as Role })}
             >
@@ -383,22 +383,22 @@ function VehicleSection({
   return (
     <section className="mt-5" aria-labelledby="vehicle-heading">
       <div className="mb-3 flex items-center gap-2">
-        <Car aria-hidden="true" size={18} className="text-gray-500" />
-        <h2 id="vehicle-heading" className="text-body font-semibold text-gray-900">
+        <Car aria-hidden="true" size={18} className="text-text-tertiary-on-muted" />
+        <h2 id="vehicle-heading" className="text-body font-semibold text-text-primary">
           차량 정보
         </h2>
       </div>
       {!canManageVehicle ? (
-        <p className="mb-3 rounded-card bg-amber-50 px-4 py-3 text-caption text-amber-700">
+        <p className="mb-3 rounded-ridy-lg bg-warning-subtle px-4 py-3 text-caption text-warning">
           차주로 전환하면 차량을 등록할 수 있습니다.
         </p>
       ) : null}
       <div className="space-y-gap-tight">
-        {isLoading ? <div className="h-28 rounded-card bg-gray-100" aria-label="차량 정보를 불러오는 중" /> : null}
+          {isLoading ? <div className="h-28 rounded-ridy-lg bg-surface-secondary" aria-label="차량 정보를 불러오는 중" /> : null}
         {isError ? (
-          <Card>
+          <Card className="border-orange-100 bg-orange-50/60">
             <CardContent className="p-4 text-center">
-              <p className="text-body font-semibold text-gray-900">차량 정보를 불러오지 못했습니다.</p>
+              <p className="text-body font-semibold text-text-primary">차량 정보를 불러오지 못했습니다.</p>
               <Button type="button" variant="outline" className="mt-3" onClick={onRetry}>
                 다시 시도
               </Button>
@@ -406,9 +406,10 @@ function VehicleSection({
           </Card>
         ) : null}
         {!isLoading && !isError && vehicles.length === 0 ? (
-          <Card>
-            <CardContent className="p-4 text-center text-caption text-gray-500">
-              등록된 차량이 없습니다. 차량을 등록하면 차주로 운행할 수 있습니다.
+          <Card className="border-dashed border-primary/20 bg-primary-subtle/40 bg-surface">
+            <CardContent className="p-4 text-center">
+              <p className="text-body font-semibold text-text-primary">등록된 차량이 없습니다.</p>
+              <p className="mt-1 text-caption text-text-tertiary">차량을 등록하면 차주로 운행할 수 있습니다.</p>
             </CardContent>
           </Card>
         ) : null}
@@ -417,9 +418,9 @@ function VehicleSection({
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-body font-semibold text-gray-900">{vehicle.model}</p>
-                  <p className="mt-1 text-caption text-gray-500">{vehicle.plate}</p>
-                  <p className="mt-2 text-caption text-gray-700">
+                  <p className="text-body font-semibold text-text-primary">{vehicle.model}</p>
+                  <p className="mt-1 text-caption text-text-tertiary">{vehicle.plate}</p>
+                  <p className="mt-2 text-caption text-text-secondary">
                     {vehicle.color ?? '색상 미등록'} · {vehicleCapacityLabel(vehicle.capacity)}
                   </p>
                 </div>
@@ -490,7 +491,7 @@ function VehicleForm({
               required
             />
           </Field>
-          <Button type="submit" className="h-11 w-full">
+          <Button type="submit" className="h-11 min-h-11 w-full">
             {editingVehicleId ? '차량 수정' : '차량 등록'}
           </Button>
         </form>
@@ -604,7 +605,7 @@ function AccountSection({ onLogout }: { onLogout: () => void }) {
           <Button type="button" variant="outline" className="h-11 w-full" onClick={onLogout}>
             <LogOut aria-hidden="true" /> 로그아웃
           </Button>
-          <div className="rounded-card border border-danger/20 bg-white p-3 text-caption text-gray-600">
+          <div className="rounded-card border border-orange-100 bg-orange-50/60 p-3 text-caption text-gray-600">
             <div className="flex items-center gap-2 font-semibold text-danger">
               <ShieldAlert aria-hidden="true" size={16} /> 회원탈퇴
             </div>

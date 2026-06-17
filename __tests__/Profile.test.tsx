@@ -128,6 +128,35 @@ describe('마이페이지', () => {
     expect(screen.getByText('12가 3456')).toBeInTheDocument();
   });
 
+  it('FE-KT-008: 프로필 화면이 KT profile card와 vehicle feedback hierarchy를 따른다', async () => {
+    renderWithAuth(<ProfilePage />);
+
+    expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
+    expect(await screen.findByText('김서연')).toHaveClass('text-text-primary');
+    expect(screen.getByText('seoyeon@techstarter.test')).toHaveClass('text-text-tertiary');
+    expect(screen.getByText('평점 4.8').closest('div')).toHaveClass('bg-surface-secondary');
+
+    const vehicleCard = screen.getByTestId('vehicle-vehicle-1');
+    expect(vehicleCard).toHaveClass('bg-surface');
+    expect(within(vehicleCard).getByText('아이오닉 5')).toHaveClass('text-text-primary');
+    expect(within(vehicleCard).getByText('12가 3456')).toHaveClass('text-text-tertiary');
+  });
+
+  it('FE-KT-008: 차량이 없으면 KT empty CTA 안내를 표시한다', async () => {
+    server.use(
+      graphql.query('MyVehicles', () => {
+        return HttpResponse.json({ data: { myVehicles: [] } });
+      }),
+    );
+
+    renderWithAuth(<ProfilePage />);
+
+    const emptyVehicleState = await screen.findByText('등록된 차량이 없습니다.');
+    expect(emptyVehicleState.closest('[data-slot="card"]')).toHaveClass('border-dashed', 'bg-surface');
+    expect(screen.getByText('차량을 등록하면 차주로 운행할 수 있습니다.')).toHaveClass('text-text-tertiary');
+    expect(screen.getByRole('button', { name: '차량 등록' })).toHaveClass('min-h-11');
+  });
+
   it('프로필 수정 mutation을 호출한다', async () => {
     const user = userEvent.setup();
     renderWithAuth(<ProfilePage />);
