@@ -119,6 +119,18 @@ describe('평점/리뷰 화면', () => {
     expect(await screen.findByText('리뷰가 등록되었습니다.')).toBeInTheDocument();
   });
 
+  it('FE-KT-008: 리뷰 화면이 KT rating guide와 feedback hierarchy를 따른다', async () => {
+    renderWithAuth(<ReviewPage />);
+
+    expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
+    expect(await screen.findByText('운행 ride-1')).toHaveClass('text-white/80');
+    expect(screen.getByText('완료된 운행 참여자에게만 리뷰를 남길 수 있어요.').closest('[data-slot="card"]')).toHaveClass('bg-primary');
+    expect(screen.getByRole('heading', { name: '리뷰 작성' })).toHaveClass('text-text-primary');
+    expect(screen.getByText('별점')).toHaveClass('text-text-secondary');
+    expect(screen.getByText('☆☆☆☆☆')).toHaveClass('text-warning');
+    expect(screen.getByRole('button', { name: '리뷰 제출' })).toHaveClass('min-h-11');
+  });
+
   it('별점 또는 상대방 ID가 없으면 제출할 수 없다', async () => {
     const user = userEvent.setup();
     renderWithAuth(<ReviewPage />);

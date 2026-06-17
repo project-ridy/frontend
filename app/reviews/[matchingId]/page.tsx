@@ -89,9 +89,9 @@ export default function ReviewPage() {
   if (!rideId) {
     return (
       <AuthGuard>
-        <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
-          <h1 className="text-h2 text-gray-900">평점/리뷰</h1>
-          <p className="mt-3 rounded-card bg-white p-5 text-body text-gray-700">잘못된 운행 ID입니다.</p>
+        <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet lg:max-w-6xl lg:px-page-desktop lg:pb-page-desktop">
+          <h1 className="text-h2 text-text-primary">평점/리뷰</h1>
+          <p className="mt-3 rounded-ridy-lg bg-surface p-5 text-body text-text-secondary">잘못된 운행 ID입니다.</p>
         </main>
       </AuthGuard>
     );
@@ -99,14 +99,14 @@ export default function ReviewPage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet lg:max-w-6xl lg:px-page-desktop lg:pb-page-desktop">
         <header aria-label="평점 리뷰 헤더">
-          <p className="text-small font-medium text-gray-500">함께 탄 경험을 남겨주세요</p>
-          <h1 className="mt-1 text-h2 text-gray-900">평점/리뷰</h1>
+          <p className="text-small font-medium text-text-tertiary-on-muted">함께 탄 경험을 남겨주세요</p>
+          <h1 className="mt-1 text-h2 text-text-primary">평점/리뷰</h1>
         </header>
 
         <section className="mt-5" aria-label="리뷰 작성 안내">
-          <Card className="bg-primary text-white">
+          <Card className="bg-primary text-text-inverse">
             <CardContent className="flex items-center justify-between p-4">
               <div>
                 <p className="text-caption text-white/80">운행 {rideId}</p>
@@ -120,12 +120,12 @@ export default function ReviewPage() {
         <section className="mt-5" aria-labelledby="review-form-heading">
           <Card>
             <CardContent className="p-4">
-              <h2 id="review-form-heading" className="text-h3 text-gray-900">
+              <h2 id="review-form-heading" className="text-h3 text-text-primary">
                 리뷰 작성
               </h2>
               <form className="mt-4 space-y-4" onSubmit={(event) => void handleSubmit(event)}>
                 <div>
-                  <label htmlFor="target-user-id" className="text-caption font-semibold text-gray-700">
+                  <label htmlFor="target-user-id" className="text-caption font-semibold text-text-secondary">
                     상대방 ID
                   </label>
                   <Input
@@ -138,14 +138,14 @@ export default function ReviewPage() {
                 </div>
 
                 <div>
-                  <p className="text-caption font-semibold text-gray-700">별점</p>
+                  <p className="text-caption font-semibold text-text-secondary">별점</p>
                   <div className="mt-2 grid grid-cols-5 gap-2">
                     {[1, 2, 3, 4, 5].map((score) => (
                       <Button
                         key={score}
                         type="button"
                         variant={rating === score ? 'default' : 'outline'}
-                        className="h-10 px-2 text-caption"
+                        className="min-h-11 px-2 text-caption"
                         onClick={() => setRating(score)}
                       >
                         {score}점
@@ -156,7 +156,7 @@ export default function ReviewPage() {
                 </div>
 
                 <div>
-                  <p className="text-caption font-semibold text-gray-700">빠른 리뷰 태그</p>
+                  <p className="text-caption font-semibold text-text-secondary">빠른 리뷰 태그</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {quickTags.map((tag) => {
                       const isSelected = selectedTags.includes(tag);
@@ -166,7 +166,7 @@ export default function ReviewPage() {
                           key={tag}
                           type="button"
                           variant={isSelected ? 'default' : 'outline'}
-                          className="h-8 text-caption"
+                          className="min-h-11 text-caption"
                           aria-pressed={isSelected}
                           onClick={() => handleToggleTag(tag)}
                         >
@@ -178,7 +178,7 @@ export default function ReviewPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="review-comment" className="text-caption font-semibold text-gray-700">
+                  <label htmlFor="review-comment" className="text-caption font-semibold text-text-secondary">
                     리뷰 코멘트
                   </label>
                   <textarea
@@ -187,16 +187,16 @@ export default function ReviewPage() {
                     maxLength={maxCommentLength}
                     onChange={(event) => setComment(event.target.value)}
                     placeholder="좋았던 점을 알려주세요"
-                    className="mt-1 min-h-24 w-full rounded-lg border border-input bg-white px-3 py-2 text-body text-gray-900 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                    className="mt-1 min-h-24 w-full rounded-ridy-md border border-border-input bg-surface px-3 py-2 text-body text-text-primary outline-none transition-colors duration-fast placeholder:text-text-tertiary focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/30"
                   />
-                  <p className="mt-1 text-right text-small text-gray-500">
+                  <p className="mt-1 text-right text-small text-text-tertiary">
                     {comment.length}/{maxCommentLength}
                   </p>
                 </div>
 
                 <Button
                   type="submit"
-                  className="h-10 w-full"
+                  className="min-h-11 w-full"
                   disabled={!targetUserId || rating === 0 || createReviewMutation.isPending}
                 >
                   리뷰 제출
@@ -299,7 +299,7 @@ function ReviewCard({ review }: { review: Review }) {
 
 function ReviewListEmpty({ text }: { text: string }) {
   return (
-    <div className="rounded-card border border-dashed border-gray-100 bg-white p-5 text-center">
+    <div className="rounded-card border border-dashed border-primary/20 bg-primary-subtle/40 p-5 text-center">
       <p className="text-body font-semibold text-gray-900">{text}</p>
     </div>
   );
@@ -307,7 +307,7 @@ function ReviewListEmpty({ text }: { text: string }) {
 
 function ReviewListError({ text, onRetry }: { text: string; onRetry: () => void }) {
   return (
-    <div className="rounded-card border border-danger/20 bg-white p-5 text-center">
+    <div className="rounded-card border border-orange-100 bg-orange-50/60 p-5 text-center">
       <p className="text-body font-semibold text-gray-900">{text}</p>
       <Button type="button" variant="outline" className="mt-3 h-9" onClick={onRetry}>
         <RefreshCw aria-hidden="true" size={16} />
