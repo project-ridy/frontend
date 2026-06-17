@@ -70,7 +70,7 @@ function MatchingsPageContent() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet lg:max-w-6xl lg:px-page-desktop lg:pb-page-desktop">
         <header className="flex items-center gap-3" aria-label="매칭 결과 헤더">
           <Button type="button" variant="ghost" size="icon" aria-label="뒤로가기" onClick={() => router.push('/')}>
             <ArrowLeft aria-hidden="true" size={20} />
@@ -79,7 +79,7 @@ function MatchingsPageContent() {
             <h1 className="text-h2 text-gray-900">
               {searchRidesQuery.isPending ? '매칭 검색 중' : '매칭 결과'}
             </h1>
-            <p className="mt-1 truncate text-caption text-gray-500">
+              <p className="mt-1 truncate text-caption text-text-tertiary-on-muted">
               {departure} → {destination}
             </p>
           </div>
@@ -89,8 +89,8 @@ function MatchingsPageContent() {
           <Card>
             <CardContent className="flex items-center justify-between p-4">
               <div>
-                <p className="text-caption text-gray-500">같은 회사 동료</p>
-                <p className="mt-1 text-h3 text-gray-900">
+                <p className="text-caption text-text-tertiary">같은 회사 동료</p>
+                <p className="mt-1 text-h3 text-text-primary">
                   {searchRidesQuery.data?.totalCount ?? 0}명의 동료
                 </p>
               </div>
@@ -101,8 +101,8 @@ function MatchingsPageContent() {
 
         <section className="mt-5" aria-labelledby="sort-heading">
           <div className="mb-3 flex items-center gap-2">
-            <ArrowUpDown aria-hidden="true" size={16} className="text-gray-500" />
-            <h2 id="sort-heading" className="text-body font-semibold text-gray-900">
+            <ArrowUpDown aria-hidden="true" size={16} className="text-gray-450" />
+            <h2 id="sort-heading" className="text-body font-semibold text-text-primary">
               정렬
             </h2>
           </div>
@@ -137,9 +137,10 @@ function MatchingsPageContent() {
                     departureTime={formatRideTime(ride.departureTime)}
                     estimatedFare={formatFare(ride.fare)}
                     availableSeats={ride.availableSeats}
+                    status={ride.status}
                     onClick={() => router.push(`/matchings/${ride.id}`)}
                   />
-                  <div className="flex items-center gap-2 px-1 text-caption text-gray-500">
+                  <div className="flex items-center gap-2 px-1 text-caption text-text-tertiary-on-muted">
                     <span>평점 {ride.driver.rating.toFixed(1)}</span>
                     <span aria-hidden="true">·</span>
                     <span>운행 {ride.driver.rideCount}회</span>
@@ -158,7 +159,7 @@ function MatchingsPageContent() {
 function MatchingsPageFallback() {
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet">
         <header className="flex items-center gap-3" aria-label="매칭 결과 헤더">
           <div className="size-8" aria-hidden="true" />
           <div>
@@ -186,7 +187,7 @@ function MatchingsLoading() {
 
 function MatchingsEmpty() {
   return (
-    <div className="rounded-card border border-dashed border-gray-100 bg-white p-5 text-center">
+    <div className="rounded-card border border-dashed border-primary/20 bg-primary-subtle/40 p-5 text-center">
       <MapPin aria-hidden="true" className="mx-auto text-gray-500" size={24} />
       <h2 className="mt-3 text-body font-semibold text-gray-900">근처 카풀이 없습니다</h2>
       <p className="mt-1 text-caption text-gray-500">출발 시간을 조금 바꾸면 더 많은 동료를 찾을 수 있어요.</p>
@@ -196,9 +197,9 @@ function MatchingsEmpty() {
 
 function MatchingsError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="rounded-card border border-danger/20 bg-white p-5 text-center">
+    <div className="rounded-card border border-orange-100 bg-orange-50/60 p-5 text-center">
       <p className="text-body font-semibold text-gray-900">매칭 결과를 불러오지 못했습니다.</p>
-      <p className="mt-1 text-caption text-gray-500">잠시 후 다시 시도해주세요.</p>
+      <p className="mt-1 text-caption text-gray-500">연결이 불안정해요. 잠시 후 다시 확인해주세요.</p>
       <Button type="button" variant="outline" className="mt-3 h-9" onClick={onRetry}>
         <RefreshCw aria-hidden="true" size={16} />
         다시 시도

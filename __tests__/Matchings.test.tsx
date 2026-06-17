@@ -177,6 +177,21 @@ describe('매칭 결과 화면', () => {
 
     expect(push).toHaveBeenCalledWith('/matchings/ride-1');
   });
+
+  it('FE-KT-006: 매칭 결과 카드가 KT badge와 route hierarchy를 유지한다', async () => {
+    renderWithAuth(<MatchingsPage />);
+
+    const cards = await screen.findAllByTestId('matching-result-card');
+    const firstCard = within(cards[0]!);
+
+    expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
+    expect(firstCard.getByLabelText('박준서 카풀 카드')).toHaveClass('bg-surface');
+    expect(firstCard.getByText('OPEN')).toHaveClass('bg-blue-50');
+    expect(firstCard.getByText('강남역')).toHaveClass('text-text-primary');
+    expect(firstCard.getByText('수원역')).toHaveClass('text-text-primary');
+    expect(firstCard.getByText('5,000원')).toHaveClass('text-text-primary');
+    expect(firstCard.getByText('2석 남음')).toHaveClass('text-text-secondary');
+  });
 });
 
 describe('매칭 상세 화면', () => {
@@ -215,5 +230,16 @@ describe('매칭 상세 화면', () => {
     await user.click(screen.getByRole('button', { name: '요청 보내기' }));
 
     expect(await screen.findByText('탑승 요청을 보내지 못했습니다.')).toBeInTheDocument();
+  });
+
+  it('FE-KT-006: 매칭 상세 화면이 KT surface와 요청 feedback hierarchy를 따른다', async () => {
+    renderWithAuth(<MatchingDetailPage />);
+
+    expect(await screen.findByRole('heading', { name: '박준서' })).toBeInTheDocument();
+
+    expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
+    expect(screen.getByText('출발 시간').closest('div')).toHaveClass('rounded-ridy-md');
+    expect(screen.getByText('예상 요금').closest('div')).toHaveClass('bg-surface-secondary');
+    expect(screen.getByRole('button', { name: '탑승 요청' })).toHaveClass('min-h-11');
   });
 });
