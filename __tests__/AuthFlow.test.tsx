@@ -191,6 +191,22 @@ describe('로그인/온보딩 플로우', () => {
     expect(screen.getByRole('tab', { name: '가입' })).not.toHaveClass('bg-primary');
   });
 
+  it('FE-KT-PURE-002: 인증 화면이 강한 radial glow 없이 Gray-first surface를 사용한다', () => {
+    render(
+      <TestProviders>
+        <LoginPage />
+      </TestProviders>,
+    );
+
+    const formShell = screen.getByRole('main');
+
+    expect(formShell).toHaveClass('bg-surface-muted');
+    expect(formShell.innerHTML).not.toContain('radial-gradient');
+    expect(formShell.innerHTML).not.toContain('backdrop-blur-xl');
+    expect(formShell.innerHTML).not.toContain('shadow-4');
+    expect(formShell.innerHTML).not.toContain('shadow-[0_18px_36px_rgba');
+  });
+
   it('회사 이메일과 비밀번호로 로그인한다', async () => {
     const user = userEvent.setup();
 

@@ -111,8 +111,6 @@ export default function LandingPage() {
       </header>
 
       <section className="relative overflow-hidden px-5 pb-16 pt-8 sm:px-8 sm:pb-24 sm:pt-16" aria-labelledby="landing-hero-heading">
-        <div className="absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_20%_10%,rgba(37,99,235,0.22),transparent_34%),radial-gradient(circle_at_90%_20%,rgba(16,185,129,0.18),transparent_28%)]" />
-        <div className="absolute left-1/2 top-12 h-80 w-80 -translate-x-1/2 rounded-full bg-white/60 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
             <Badge className="bg-secondary/10 text-secondary hover:bg-secondary/10">
@@ -139,9 +137,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <Card className="border-white/70 bg-white/88 shadow-4 backdrop-blur-xl">
+          <Card className="border-border-default bg-surface shadow-2">
             <CardContent className="p-5 sm:p-6">
-              <div className="rounded-[1.5rem] bg-primary p-5 text-white shadow-[0_20px_50px_rgba(37,99,235,0.28)]">
+              <div className="rounded-ridy-2xl bg-primary p-5 text-white shadow-1">
                 <p className="text-caption text-white/80">오늘의 추천 카풀</p>
                 <p className="mt-2 text-h2">강남역 → 판교역</p>
                 <p className="mt-2 text-caption text-white/80">08:30 출발 · 2석 남음 · 같은 회사 인증</p>

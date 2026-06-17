@@ -163,10 +163,9 @@ export function LoginForm() {
 
   return (
     <main className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center overflow-hidden bg-surface-muted px-page-mobile py-8 sm:px-page-tablet">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_20%_20%,rgba(37,99,235,0.20),transparent_36%),radial-gradient(circle_at_82%_8%,rgba(16,185,129,0.15),transparent_30%)]" />
-      <Card className="relative border-white/70 bg-white/90 shadow-4 backdrop-blur-xl">
+      <Card className="relative border-border-default bg-surface shadow-2">
         <CardHeader className="items-center text-center">
-          <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-primary text-white shadow-[0_18px_36px_rgba(37,99,235,0.28)]">
+          <div className="mb-4 flex size-16 items-center justify-center rounded-ridy-2xl bg-primary text-white shadow-1">
             <Car className="size-8" aria-hidden="true" />
           </div>
           <h1 className="text-h1 font-bold text-text-primary">Ridy</h1>

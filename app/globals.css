@@ -33,16 +33,10 @@
   --color-blue-500: #3b82f6;
   --color-blue-600: #2563eb;
   --color-blue-700: #1d4ed8;
-  --color-blue-900: #0033a9;
-  --color-green-50: #e6fef0;
-  --color-green-500: #10b981;
-  --color-green-700: #047857;
-  --color-green-900: #008d7a;
   --color-red-50: #fff0f3;
   --color-red-500: #ef4444;
   --color-red-600: #dc2626;
   --color-red-700: #b91c1c;
-  --color-red-900: #c10027;
   --color-orange-50: #fff7ed;
   --color-orange-500: #f59e0b;
   --color-orange-700: #b45309;
@@ -140,16 +134,10 @@
   --color-blue-500: var(--color-blue-500);
   --color-blue-600: var(--color-blue-600);
   --color-blue-700: var(--color-blue-700);
-  --color-blue-900: var(--color-blue-900);
-  --color-green-50: var(--color-green-50);
-  --color-green-500: var(--color-green-500);
-  --color-green-700: var(--color-green-700);
-  --color-green-900: var(--color-green-900);
   --color-red-50: var(--color-red-50);
   --color-red-500: var(--color-red-500);
   --color-red-600: var(--color-red-600);
   --color-red-700: var(--color-red-700);
-  --color-red-900: var(--color-red-900);
   --color-orange-50: var(--color-orange-50);
   --color-orange-500: var(--color-orange-500);
   --color-orange-700: var(--color-orange-700);
@@ -256,7 +244,7 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background: radial-gradient(circle at top, rgb(59 130 246 / 14%), transparent 32rem), var(--color-gray-50);
+  background: var(--color-gray-50);
   color: var(--color-gray-900);
   font-family: var(--font-pretendard);
 }

@@ -27,7 +27,7 @@ describe('MatchingCard', () => {
     expect(text.indexOf('OPEN')).toBeLessThan(text.indexOf('강남역'));
     expect(text.indexOf('강남역')).toBeLessThan(text.indexOf('5,000원'));
     expect(text.indexOf('5,000원')).toBeLessThan(text.indexOf('3석 남음'));
-    expect(screen.getByText('OPEN')).toHaveClass('bg-blue-50');
+    expect(screen.getByText('OPEN')).toHaveClass('bg-primary-subtle');
     expect(screen.getByRole('button', { name: '탑승 요청' })).toBeInTheDocument();
   });
 
@@ -48,7 +48,7 @@ describe('MatchingCard', () => {
     expect(screen.getByText('5,000원')).toHaveClass('text-text-primary');
     expect(screen.getByText('3석 남음')).toHaveClass('text-primary');
 
-    expect(screen.getByText('OPEN')).toHaveClass('bg-blue-50');
+    expect(screen.getByText('OPEN')).toHaveClass('bg-primary-subtle');
     expect(screen.getByRole('button', { name: '탑승 요청' })).toHaveClass('min-h-11');
   });
 
@@ -62,7 +62,7 @@ describe('MatchingCard', () => {
       />,
     );
 
-    expect(screen.getByText('MATCHED')).toHaveClass('bg-green-50');
+    expect(screen.getByText('MATCHED')).toHaveClass('bg-secondary/10');
     expect(screen.getByText('만석')).toHaveClass('text-primary');
     expect(screen.getByText('잔여 좌석이 없어 요청할 수 없습니다.')).toHaveClass('text-text-secondary');
     expect(screen.queryByRole('button', { name: '탑승 요청' })).not.toBeInTheDocument();
@@ -136,7 +136,7 @@ describe('MatchingCard', () => {
     expect(screen.getByText(/서울특별시/)).toHaveClass('truncate');
     expect(screen.getByText(/경기도 성남시/)).toHaveClass('truncate');
     expect(screen.getByText('만석')).toBeInTheDocument();
-    expect(screen.getByText('MATCHED')).toHaveClass('bg-green-50');
+    expect(screen.getByText('MATCHED')).toHaveClass('bg-secondary/10');
   });
 
   it('onClick이 없어도 카드 내용을 렌더링하고 button role을 강제하지 않는다', () => {

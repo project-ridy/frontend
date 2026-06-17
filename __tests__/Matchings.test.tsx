@@ -186,7 +186,7 @@ describe('매칭 결과 화면', () => {
 
     expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
     expect(firstCard.getByLabelText('박준서 카풀 카드')).toHaveClass('bg-surface');
-    expect(firstCard.getByText('OPEN')).toHaveClass('bg-blue-50');
+    expect(firstCard.getByText('OPEN')).toHaveClass('bg-primary-subtle');
     expect(firstCard.getByText('강남역')).toHaveClass('text-text-primary');
     expect(firstCard.getByText('수원역')).toHaveClass('text-text-primary');
     expect(firstCard.getByText('5,000원')).toHaveClass('text-text-primary');

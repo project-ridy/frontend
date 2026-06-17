@@ -65,6 +65,27 @@ describe('FE-KT-002 KT UI primitives', () => {
     expect(screen.getByText('동승 가능')).toHaveClass('rounded-pill');
   });
 
+  it('FE-KT-PURE-004: danger/action button이 semantic token과 제한된 elevation을 사용한다', () => {
+    render(
+      <div>
+        <Button type="button" variant="destructive">삭제</Button>
+        <Button type="button" variant="action" aria-label="필터">F</Button>
+      </div>,
+    );
+
+    const destructiveButton = screen.getByRole('button', { name: '삭제' });
+    const actionButton = screen.getByRole('button', { name: '필터' });
+
+    expect(destructiveButton).toHaveClass('bg-danger/10');
+    expect(destructiveButton).toHaveClass('text-danger');
+    expect(destructiveButton.className).not.toContain('bg-red-50');
+    expect(destructiveButton.className).not.toContain('text-red-700');
+    expect(actionButton).toHaveClass('rounded-ridy-md');
+    expect(actionButton).toHaveClass('shadow-1');
+    expect(actionButton.className).not.toContain('rounded-full');
+    expect(actionButton.className).not.toContain('shadow-raised');
+  });
+
   it('line tab은 pill indicator와 44px 터치 높이를 유지한다', () => {
     render(
       <Tabs defaultValue="passenger">
