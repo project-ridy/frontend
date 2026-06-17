@@ -37,10 +37,10 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet lg:max-w-6xl lg:px-page-desktop lg:pb-page-desktop">
         <header aria-label="채팅 목록 헤더">
-          <p className="text-small font-medium text-gray-500">함께 타는 길</p>
-          <h1 className="mt-1 text-h2 text-gray-900">채팅</h1>
+          <p className="text-small font-medium text-text-tertiary-on-muted">함께 타는 길</p>
+          <h1 className="mt-1 text-h2 text-text-primary">채팅</h1>
         </header>
 
         <section className="mt-5 space-y-gap-tight" aria-label="채팅방 목록">
@@ -68,22 +68,22 @@ function ChatRoomCard({ room, onClick }: { room: ChatRoom; onClick: () => void }
 
   return (
     <button type="button" className="w-full text-left" onClick={onClick}>
-      <Card className="transition-shadow hover:shadow-md">
+      <Card className="bg-surface transition-shadow duration-fast hover:shadow-md">
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-h3 text-gray-900">{route}</p>
-              <p className="mt-1 text-caption text-gray-500">
+            <div className="min-w-0 text-text-primary">
+              <p className="text-h3 text-text-primary">{route}</p>
+              <p className="mt-1 text-caption text-text-tertiary">
                 {room.ride.driver.name} · {formatRideTime(room.ride.departureTime)}
               </p>
             </div>
             {room.unreadCount > 0 ? (
-              <span className="rounded-full bg-primary px-2 py-1 text-small font-semibold text-white">
+              <span className="rounded-pill bg-primary-subtle px-2 py-1 text-small font-semibold text-primary">
                 읽지 않은 메시지 {room.unreadCount}개
               </span>
             ) : null}
           </div>
-          <p className="mt-3 truncate text-body text-gray-900">{lastMessage}</p>
+          <p className="mt-3 truncate text-body text-text-primary">{lastMessage}</p>
         </CardContent>
       </Card>
     </button>
@@ -93,27 +93,27 @@ function ChatRoomCard({ room, onClick }: { room: ChatRoom; onClick: () => void }
 function ChatRoomsLoading() {
   return (
     <div className="space-y-2" aria-label="채팅방을 불러오는 중">
-      <div className="h-28 rounded-card bg-gray-100" />
-      <div className="h-28 rounded-card bg-gray-100" />
+      <div className="h-28 rounded-ridy-lg bg-surface-secondary" />
+      <div className="h-28 rounded-ridy-lg bg-surface-secondary" />
     </div>
   );
 }
 
 function ChatRoomsEmpty() {
   return (
-    <div className="rounded-card border border-dashed border-gray-100 bg-white p-5 text-center">
-      <MessageCircle aria-hidden="true" className="mx-auto text-gray-500" size={24} />
-      <h2 className="mt-3 text-body font-semibold text-gray-900">아직 채팅방이 없습니다</h2>
-      <p className="mt-1 text-caption text-gray-500">매칭이 수락되면 동료와 채팅할 수 있어요.</p>
+    <div className="rounded-ridy-lg border border-dashed border-primary/20 bg-primary-subtle/40 p-5 text-center">
+      <MessageCircle aria-hidden="true" className="mx-auto text-gray-450" size={24} />
+      <h2 className="mt-3 text-body font-semibold text-text-primary">아직 채팅방이 없습니다</h2>
+      <p className="mt-1 text-caption text-text-tertiary">매칭이 수락되면 동료와 채팅할 수 있어요.</p>
     </div>
   );
 }
 
 function ChatRoomsError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="rounded-card border border-danger/20 bg-white p-5 text-center">
-      <p className="text-body font-semibold text-gray-900">채팅방을 불러오지 못했습니다.</p>
-      <p className="mt-1 text-caption text-gray-500">잠시 후 다시 시도해주세요.</p>
+    <div className="rounded-ridy-lg border border-orange-100 bg-orange-50/60 p-5 text-center">
+      <p className="text-body font-semibold text-text-primary">채팅방을 불러오지 못했습니다.</p>
+      <p className="mt-1 text-caption text-text-tertiary">연결이 불안정해요. 잠시 후 다시 확인해주세요.</p>
       <Button type="button" variant="outline" className="mt-3 h-9" onClick={onRetry}>
         <RefreshCw aria-hidden="true" size={16} />
         다시 시도

@@ -161,6 +161,17 @@ describe('채팅 목록 화면', () => {
 
     expect(await screen.findByText('아직 메시지가 없습니다')).toBeInTheDocument();
   });
+
+  it('FE-KT-007: 채팅 목록이 KT surface와 unread badge hierarchy를 따른다', async () => {
+    renderWithAuth(<ChatPage />);
+
+    expect(await screen.findByRole('heading', { name: '채팅' })).toBeInTheDocument();
+
+    expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
+    expect((await screen.findByText('강남역 → 수원역')).closest('div')).toHaveClass('text-text-primary');
+    expect(screen.getByText(/박준서/)).toHaveClass('text-text-tertiary');
+    expect(screen.getByText(/읽지 않은 메시지\s*2개/)).toHaveClass('bg-primary-subtle');
+  });
 });
 
 describe('채팅방 화면', () => {
@@ -279,5 +290,21 @@ describe('채팅방 화면', () => {
     });
 
     expect(await screen.findByText('곧 도착합니다')).toBeInTheDocument();
+  });
+
+  it('FE-KT-007: 채팅방이 KT message bubble과 fixed input safe-area를 사용한다', async () => {
+    renderWithAuth(<ChatRoomPage />);
+
+    expect(await screen.findByText('내일 탑승 가능하신가요?')).toBeInTheDocument();
+
+    expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
+    expect(screen.getByText('내일 탑승 가능하신가요?').closest('div')).toHaveClass('bg-surface');
+    expect(screen.getByText('네 가능합니다').closest('div')).toHaveClass('bg-primary');
+
+    const inputBar = screen.getByRole('form', { name: '메시지 작성' });
+    expect(inputBar).toHaveClass('bg-surface-raised');
+    expect(inputBar).toHaveClass('supports-[padding:max(0px)]:pb-[max(env(safe-area-inset-bottom),1rem)]');
+    expect(screen.getByPlaceholderText('메시지 입력')).toHaveClass('border-border-input');
+    expect(screen.getByRole('button', { name: '전송' })).toHaveClass('min-h-11');
   });
 });
