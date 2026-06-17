@@ -52,4 +52,18 @@ describe('랜딩 페이지', () => {
     expect(secondaryCta).toHaveClass('border-primary');
     expect(secondaryCta).not.toHaveClass('bg-primary');
   });
+
+  it('FE-KT-PURE-002: 랜딩 hero가 강한 radial glow 없이 Gray-first surface를 사용한다', () => {
+    render(<LandingPage />);
+
+    const main = screen.getByRole('main');
+    const heroSection = screen.getByRole('heading', { name: /함께 타는 출퇴근/ }).closest('section');
+
+    expect(main).toHaveClass('bg-surface-muted');
+    expect(heroSection).not.toBeNull();
+    expect(heroSection.innerHTML).not.toContain('radial-gradient');
+    expect(heroSection.innerHTML).not.toContain('blur-3xl');
+    expect(heroSection.innerHTML).not.toContain('backdrop-blur-xl');
+    expect(heroSection.innerHTML).not.toContain('shadow-4');
+  });
 });
