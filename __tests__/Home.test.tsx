@@ -160,4 +160,30 @@ describe('홈 화면', () => {
 
     expect(push).toHaveBeenCalledWith('/matchings');
   });
+
+  it('FE-KT-005: 홈 화면과 하단 내비게이션이 KT responsive shell 기준을 따른다', async () => {
+    renderAuthenticatedHome();
+
+    expect(await screen.findByRole('heading', { name: '테크스타터' })).toBeInTheDocument();
+
+    const main = screen.getByRole('main');
+    expect(main).toHaveClass('bg-surface-muted');
+    expect(main).toHaveClass('lg:max-w-6xl');
+    expect(main).toHaveClass('lg:px-page-desktop');
+    expect(main).toHaveClass('lg:pb-page-desktop');
+
+    const routeSearchSection = screen.getByRole('region', { name: '어디로 가세요?' });
+    expect(routeSearchSection).toHaveClass('lg:sticky');
+    expect(routeSearchSection).toHaveClass('lg:top-6');
+
+    const regularRidesSection = screen.getByRole('region', { name: '내 정기 카풀' });
+    expect(regularRidesSection).toHaveClass('lg:mt-0');
+
+    const navigation = screen.getByRole('navigation', { name: '하단 내비게이션' });
+    expect(navigation).toHaveClass('bg-surface-raised');
+    expect(navigation).toHaveClass('shadow-4');
+    expect(navigation).toHaveClass('supports-[padding:max(0px)]:pb-[max(env(safe-area-inset-bottom),0.75rem)]');
+
+    expect(screen.getByLabelText('홈')).toHaveClass('min-h-11');
+  });
 });

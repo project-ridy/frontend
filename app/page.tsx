@@ -53,8 +53,8 @@ export default function Home() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
-        <header className="flex items-center justify-between" aria-label="홈 헤더">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet lg:grid lg:max-w-6xl lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:items-start lg:gap-page-desktop lg:px-page-desktop lg:pb-page-desktop">
+        <header className="flex items-center justify-between lg:col-span-2" aria-label="홈 헤더">
           <div>
             <p className="text-small font-medium text-gray-500">Ridy</p>
             <h1 className="text-h2 text-gray-900">테크스타터</h1>
@@ -70,16 +70,18 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="mt-6" aria-labelledby="route-search-heading">
-          <Card>
+        <section className="mt-6 lg:sticky lg:top-6" aria-label="경로 검색" aria-labelledby="route-search-heading">
+          <Card className="overflow-hidden border-white/70 bg-white/92 shadow-4">
+            <div className="h-2 bg-gradient-to-r from-primary via-primary/70 to-secondary" aria-hidden="true" />
             <CardContent className="space-y-gap-normal p-4">
               <div>
                 <Badge className="bg-secondary/10 text-secondary hover:bg-secondary/10">
                   같은 회사 동료만
                 </Badge>
-                <h2 id="route-search-heading" className="mt-3 text-h3 text-gray-900">
+                <h2 id="route-search-heading" className="mt-3 text-h2 text-gray-900">
                   어디로 가세요?
                 </h2>
+                <p className="mt-1 text-caption text-text-secondary">출근길 흐름에 맞는 동료 카풀을 바로 찾아드릴게요.</p>
               </div>
 
               <RouteInput
@@ -111,7 +113,7 @@ export default function Home() {
           </Card>
         </section>
 
-        <section className="mt-6 space-y-gap-normal" aria-labelledby="regular-rides-heading">
+        <section className="mt-6 space-y-gap-normal lg:mt-0" aria-labelledby="regular-rides-heading">
           <div className="flex items-center justify-between">
             <div>
               <h2 id="regular-rides-heading" className="text-h3 text-gray-900">
@@ -159,7 +161,7 @@ function HomeRideSkeleton() {
 
 function HomeRideEmpty() {
   return (
-    <div className="rounded-card border border-dashed border-gray-100 bg-white p-4 text-center">
+    <div className="rounded-card border border-dashed border-primary/20 bg-primary-subtle/40 p-4 text-center">
       <MapPin aria-hidden="true" className="mx-auto text-gray-500" size={22} />
       <h2 id="empty-home-heading" className="mt-3 text-body font-semibold text-gray-900">
         첫 카풀을 찾아보세요
@@ -171,9 +173,9 @@ function HomeRideEmpty() {
 
 function HomeRideError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="rounded-card border border-danger/20 bg-white p-4 text-center">
+    <div className="rounded-card border border-orange-100 bg-orange-50/60 p-4 text-center">
       <p className="text-body font-semibold text-gray-900">카풀 목록을 불러오지 못했습니다.</p>
-      <p className="mt-1 text-caption text-gray-500">잠시 후 다시 시도해주세요.</p>
+      <p className="mt-1 text-caption text-gray-500">연결이 불안정해요. 잠시 후 다시 확인해주세요.</p>
       <Button type="button" variant="outline" className="mt-3 h-9" onClick={onRetry}>
         다시 시도
       </Button>

@@ -84,20 +84,20 @@ export default function PaymentsPage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet lg:max-w-6xl lg:px-page-desktop lg:pb-page-desktop">
         <header aria-label="정산 화면 헤더">
-          <p className="text-small font-medium text-gray-500">함께 탄 만큼 투명하게</p>
-          <h1 className="mt-1 text-h2 text-gray-900">정산</h1>
+          <p className="text-small font-medium text-text-tertiary-on-muted">함께 탄 만큼 투명하게</p>
+          <h1 className="mt-1 text-h2 text-text-primary">정산</h1>
         </header>
 
         <PaymentSummary summary={summary} />
 
         <section className="mt-5" aria-labelledby="settlement-filter-heading">
           <div className="mb-3 flex items-center justify-between">
-            <h2 id="settlement-filter-heading" className="text-body font-semibold text-gray-900">
+            <h2 id="settlement-filter-heading" className="text-body font-semibold text-text-primary">
               정산 내역
             </h2>
-            <ReceiptText aria-hidden="true" size={18} className="text-gray-500" />
+            <ReceiptText aria-hidden="true" size={18} className="text-text-tertiary-on-muted" />
           </div>
           <div className="grid grid-cols-3 gap-2">
             {statusFilters.map((filter) => (
@@ -153,20 +153,20 @@ function PaymentSummary({ summary }: { summary: PaymentSummaryData }) {
     <section className="mt-5 grid grid-cols-2 gap-3" aria-label="정산 요약">
       <Card>
         <CardContent className="p-4">
-          <p className="text-caption text-gray-500">대기 정산</p>
-          <p className="mt-1 text-h2 text-gray-900">{formatPaymentAmount(summary.pendingAmount)}</p>
+          <p className="text-caption text-text-tertiary">대기 정산</p>
+          <p className="mt-1 text-h2 text-text-primary">{formatPaymentAmount(summary.pendingAmount)}</p>
         </CardContent>
       </Card>
       <Card>
         <CardContent className="p-4">
-          <p className="text-caption text-gray-500">완료 정산</p>
-          <p className="mt-1 text-h2 text-gray-900">{formatPaymentAmount(summary.paidAmount)}</p>
+          <p className="text-caption text-text-tertiary">완료 정산</p>
+          <p className="mt-1 text-h2 text-text-primary">{formatPaymentAmount(summary.paidAmount)}</p>
         </CardContent>
       </Card>
-      <Card className="col-span-2 bg-primary text-white">
+        <Card className="col-span-2 bg-primary text-text-inverse">
         <CardContent className="flex items-center justify-between p-4">
           <div>
-            <p className="text-caption text-white/80">차주 수익</p>
+              <p className="text-caption text-white/80">차주 수익</p>
             <p className="mt-1 text-h2">{formatPaymentAmount(summary.driverAmount)}</p>
           </div>
           <Wallet aria-hidden="true" size={28} className="text-white/80" />
@@ -189,22 +189,22 @@ function SettlementCard({
 
   return (
     <button type="button" className="w-full text-left" onClick={onSelect} aria-pressed={isSelected}>
-      <Card className={isSelected ? 'ring-2 ring-primary' : 'transition-shadow hover:shadow-md'}>
+        <Card className={isSelected ? 'ring-2 ring-primary' : 'transition-shadow hover:shadow-2'}>
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-h3 text-gray-900">{route}</p>
-              <p className="mt-1 text-caption text-gray-500">
+              <p className="text-h3 text-text-primary">{route}</p>
+              <p className="mt-1 text-caption text-text-tertiary">
                 {settlement.ride.driver.name} · {formatRideTime(settlement.ride.departureTime)}
               </p>
             </div>
             <StatusBadge status={settlement.status} />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2 text-caption">
-            <p className="rounded-lg bg-gray-50 px-3 py-2 text-gray-700">
+            <p className="rounded-ridy-md bg-surface-secondary px-3 py-2 text-text-secondary">
               결제 금액 {formatPaymentAmount(settlement.amount)}
             </p>
-            <p className="rounded-lg bg-gray-50 px-3 py-2 text-gray-700">
+            <p className="rounded-ridy-md bg-surface-secondary px-3 py-2 text-text-secondary">
               회사 부담 {formatPaymentAmount(settlement.companyFee)}
             </p>
           </div>
@@ -245,7 +245,7 @@ function SettlementDetailPanel({
 
   if (isError || !settlement) {
     return (
-      <section className="mt-5 rounded-card border border-danger/20 bg-white p-5 text-center" aria-label="정산 상세 오류">
+      <section className="mt-5 rounded-card border border-orange-100 bg-orange-50/60 p-5 text-center" aria-label="정산 상세 오류">
         <p className="text-body font-semibold text-gray-900">정산 상세를 불러오지 못했습니다.</p>
       </section>
     );
@@ -458,7 +458,7 @@ function PaymentsLoading() {
 
 function PaymentsEmpty() {
   return (
-    <div className="rounded-card border border-dashed border-gray-100 bg-white p-5 text-center">
+    <div className="rounded-card border border-dashed border-primary/20 bg-primary-subtle/40 p-5 text-center">
       <ReceiptText aria-hidden="true" className="mx-auto text-gray-500" size={24} />
       <h2 className="mt-3 text-body font-semibold text-gray-900">아직 정산 내역이 없습니다</h2>
       <p className="mt-1 text-caption text-gray-500">카풀 운행이 완료되면 정산 내역이 표시됩니다.</p>
@@ -468,9 +468,9 @@ function PaymentsEmpty() {
 
 function PaymentsError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="rounded-card border border-danger/20 bg-white p-5 text-center">
+    <div className="rounded-card border border-orange-100 bg-orange-50/60 p-5 text-center">
       <p className="text-body font-semibold text-gray-900">정산 내역을 불러오지 못했습니다.</p>
-      <p className="mt-1 text-caption text-gray-500">잠시 후 다시 시도해주세요.</p>
+      <p className="mt-1 text-caption text-gray-500">연결이 불안정해요. 잠시 후 다시 확인해주세요.</p>
       <Button type="button" variant="outline" className="mt-3 h-9" onClick={onRetry}>
         <RefreshCw aria-hidden="true" size={16} />
         다시 시도

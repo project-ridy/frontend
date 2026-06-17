@@ -145,7 +145,7 @@ describe('기본 UI 컴포넌트', () => {
     expect(screen.getByText('PENDING')).toHaveClass('bg-orange-50');
     expect(screen.getByText('FAILED')).toHaveClass('bg-red-50');
     expect(screen.getByText('CANCELLED')).toHaveClass('bg-red-50');
-    expect(screen.getByText('차량 정보')).toHaveClass('bg-gray-100');
+    expect(screen.getByText('차량 정보')).toHaveClass('bg-surface-secondary');
   });
 
   it('Tabs는 기본 tablist와 선택된 content를 렌더링한다', async () => {

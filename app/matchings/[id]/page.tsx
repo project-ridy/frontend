@@ -63,7 +63,7 @@ export default function MatchingDetailPage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gray-50 px-page-mobile pb-24 pt-5 sm:px-page-tablet">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet lg:max-w-6xl lg:px-page-desktop lg:pb-page-desktop">
         <header className="flex items-center gap-3" aria-label="매칭 상세 헤더">
           <Button
             type="button"
@@ -75,8 +75,8 @@ export default function MatchingDetailPage() {
             <ArrowLeft aria-hidden="true" size={20} />
           </Button>
           <div>
-            <p className="text-small font-medium text-gray-500">매칭 상세</p>
-            <h1 className="text-h2 text-gray-900">
+            <p className="text-small font-medium text-text-tertiary-on-muted">매칭 상세</p>
+            <h1 className="text-h2 text-text-primary">
               {rideDetailQuery.data?.driver.name ?? '카풀 정보'}
             </h1>
           </div>
@@ -93,8 +93,8 @@ export default function MatchingDetailPage() {
                 <CardContent className="space-y-4 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-caption text-gray-500">경로</p>
-                      <p className="mt-1 text-h3 text-gray-900">
+                      <p className="text-caption text-text-tertiary">경로</p>
+                      <p className="mt-1 text-h3 text-text-primary">
                         {formatRoute(rideDetailQuery.data.departureAddr, rideDetailQuery.data.arrivalAddr)}
                       </p>
                     </div>
@@ -114,12 +114,12 @@ export default function MatchingDetailPage() {
                 <CardContent className="space-y-4 p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-caption text-gray-500">차주</p>
-                      <p className="mt-1 text-h3 text-gray-900">{rideDetailQuery.data.driver.name}</p>
+                      <p className="text-caption text-text-tertiary">차주</p>
+                      <p className="mt-1 text-h3 text-text-primary">{rideDetailQuery.data.driver.name}</p>
                     </div>
                     <Users aria-hidden="true" size={22} className="text-primary" />
                   </div>
-                  <div className="flex gap-2 text-caption text-gray-500">
+                  <div className="flex gap-2 text-caption text-text-tertiary">
                     <span>평점 {rideDetailQuery.data.driver.rating.toFixed(1)}</span>
                     <span aria-hidden="true">·</span>
                     <span>운행 {rideDetailQuery.data.driver.rideCount}회</span>
@@ -129,20 +129,20 @@ export default function MatchingDetailPage() {
             </section>
 
             {requestSent ? (
-              <p className="mt-4 rounded-card bg-secondary/10 p-4 text-body font-semibold text-secondary">
+              <p className="mt-4 rounded-ridy-lg border border-green-500/20 bg-green-50 p-4 text-body font-semibold text-green-700">
                 탑승 요청을 보냈습니다
               </p>
             ) : null}
 
             {requestRideMutation.isError ? (
-              <p className="mt-4 rounded-card border border-danger/20 bg-white p-4 text-body font-semibold text-danger">
+              <p className="mt-4 rounded-ridy-lg border border-orange-100 bg-orange-50/60 p-4 text-body font-semibold text-warning">
                 탑승 요청을 보내지 못했습니다.
               </p>
             ) : null}
 
             <Button
               type="button"
-              className="mt-5 h-12 w-full"
+              className="mt-5 h-12 min-h-11 w-full"
               disabled={requestSent}
               onClick={() => setIsRequestOpen(true)}
             >
@@ -155,19 +155,19 @@ export default function MatchingDetailPage() {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="request-ride-title"
-                className="fixed inset-x-4 bottom-24 z-50 mx-auto max-w-md rounded-card border border-gray-100 bg-white p-4 shadow-lg"
+                className="fixed inset-x-4 bottom-24 z-50 mx-auto max-w-md rounded-ridy-lg border border-border-default bg-surface p-4 shadow-4"
               >
-                <h2 id="request-ride-title" className="text-h3 text-gray-900">
+                <h2 id="request-ride-title" className="text-h3 text-text-primary">
                   탑승 요청
                 </h2>
                 <label className="mt-4 block" htmlFor="request-message">
-                  <span className="mb-2 block text-caption font-semibold text-gray-900">요청 메시지</span>
+                  <span className="mb-2 block text-caption font-semibold text-text-primary">요청 메시지</span>
                   <textarea
                     id="request-message"
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
                     rows={4}
-                    className="w-full resize-none rounded-button border border-gray-100 bg-white p-3 text-body text-gray-900 outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="w-full resize-none rounded-ridy-md border border-border-input bg-surface p-3 text-body text-text-primary outline-none transition-colors duration-fast focus:border-primary focus:ring-2 focus:ring-primary/20"
                     placeholder="출발 위치나 요청 사항을 남겨주세요"
                   />
                 </label>
@@ -203,9 +203,9 @@ export default function MatchingDetailPage() {
 
 function DetailMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-card bg-gray-50 p-3">
-      <p className="text-caption text-gray-500">{label}</p>
-      <p className="mt-1 text-body font-semibold text-gray-900">{value}</p>
+    <div className="rounded-ridy-md bg-surface-secondary p-3">
+      <p className="text-caption text-text-tertiary-on-muted">{label}</p>
+      <p className="mt-1 text-body font-semibold text-text-primary">{value}</p>
     </div>
   );
 }
@@ -213,17 +213,17 @@ function DetailMetric({ label, value }: { label: string; value: string }) {
 function DetailLoading() {
   return (
     <div className="mt-5 space-y-3" aria-label="매칭 상세를 불러오는 중">
-      <div className="h-40 rounded-card bg-gray-100" />
-      <div className="h-28 rounded-card bg-gray-100" />
+      <div className="h-40 rounded-ridy-lg bg-surface-secondary" />
+      <div className="h-28 rounded-ridy-lg bg-surface-secondary" />
     </div>
   );
 }
 
 function DetailError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="mt-5 rounded-card border border-danger/20 bg-white p-5 text-center">
-      <p className="text-body font-semibold text-gray-900">카풀 상세를 불러오지 못했습니다.</p>
-      <p className="mt-1 text-caption text-gray-500">잠시 후 다시 시도해주세요.</p>
+    <div className="mt-5 rounded-ridy-lg border border-orange-100 bg-orange-50/60 p-5 text-center">
+      <p className="text-body font-semibold text-text-primary">카풀 상세를 불러오지 못했습니다.</p>
+      <p className="mt-1 text-caption text-text-tertiary">연결이 불안정해요. 잠시 후 다시 확인해주세요.</p>
       <Button type="button" variant="outline" className="mt-3 h-9" onClick={onRetry}>
         <RefreshCw aria-hidden="true" size={16} />
         다시 시도
