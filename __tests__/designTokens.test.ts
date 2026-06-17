@@ -43,4 +43,19 @@ describe('FE-KT-001 KT 디자인 토큰', () => {
 
     expect(globalsCss).toContain('@media (prefers-reduced-motion: reduce)');
   });
+
+  it('KT palette가 문서화된 색상 단계만 노출한다', () => {
+    const undocumentedTokens = [
+      '--color-blue-900:',
+      '--color-green-50:',
+      '--color-green-500:',
+      '--color-green-700:',
+      '--color-green-900:',
+      '--color-red-900:',
+    ];
+
+    for (const token of undocumentedTokens) {
+      expect(globalsCss.toLowerCase()).not.toContain(token);
+    }
+  });
 });
