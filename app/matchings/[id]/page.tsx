@@ -129,7 +129,7 @@ export default function MatchingDetailPage() {
             </section>
 
             {requestSent ? (
-              <p className="mt-4 rounded-ridy-lg border border-green-500/20 bg-green-50 p-4 text-body font-semibold text-green-700">
+              <p className="mt-4 rounded-ridy-lg border border-secondary/20 bg-secondary/10 p-4 text-body font-semibold text-secondary">
                 탑승 요청을 보냈습니다
               </p>
             ) : null}
