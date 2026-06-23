@@ -29,10 +29,23 @@ const visualQaUser = {
 const visualQaRides = [
   {
     id: 'ride-visual-qa-1',
+    companyId: 'company-visual-qa',
+    pickupLabel: '강남역 인근',
+    pickupPrivacy: 'APPROXIMATE',
     departure: { lat: 37.4979, lng: 127.0276 },
     departureAddr: '강남역 2호선 1번 출구 앞 장기 텍스트',
     arrival: { lat: 37.2636, lng: 127.0286 },
     arrivalAddr: '수원역 환승센터 장기 텍스트',
+    workplace: {
+      id: 'workplace-visual-qa-1',
+      name: '테크스타터 본사',
+      lat: 37.2636,
+      lng: 127.0286,
+      address: '수원시 팔달구',
+      isDefault: true,
+      createdAt: '2026-06-10T09:00:00.000Z',
+      updatedAt: '2026-06-10T09:00:00.000Z',
+    },
     departureTime: '2026-06-12T08:30:00.000Z',
     availableSeats: 2,
     fare: 5000,
@@ -47,10 +60,23 @@ const visualQaRides = [
   },
   {
     id: 'ride-visual-qa-2',
+    companyId: 'company-visual-qa',
+    pickupLabel: '판교테크노밸리 인근',
+    pickupPrivacy: 'APPROXIMATE',
     departure: { lat: 37.3947, lng: 127.1112 },
     departureAddr: '판교테크노밸리',
     arrival: { lat: 37.5665, lng: 126.978 },
     arrivalAddr: '서울시청',
+    workplace: {
+      id: 'workplace-visual-qa-1',
+      name: '테크스타터 본사',
+      lat: 37.2636,
+      lng: 127.0286,
+      address: '수원시 팔달구',
+      isDefault: true,
+      createdAt: '2026-06-10T09:00:00.000Z',
+      updatedAt: '2026-06-10T09:00:00.000Z',
+    },
     departureTime: '2026-06-12T08:45:00.000Z',
     availableSeats: 1,
     fare: 4500,
@@ -68,6 +94,7 @@ const visualQaRides = [
 interface GraphqlRequestBody {
   operationName?: string;
   query?: string;
+  variables?: Record<string, unknown>;
 }
 
 export async function POST(request: Request) {
@@ -90,6 +117,18 @@ export async function POST(request: Request) {
     });
   }
 
+  if (operationName === 'NearbyCommuteOffers') {
+    return jsonResponse({
+      data: {
+        nearbyCommuteOffers: {
+          totalCount: visualQaRides.length,
+          pageInfo: { hasNextPage: false, endCursor: visualQaRides.at(-1)?.id ?? null },
+          nodes: visualQaRides,
+        },
+      },
+    });
+  }
+
   if (operationName === 'SearchRides') {
     return jsonResponse({
       data: {
@@ -100,6 +139,12 @@ export async function POST(request: Request) {
         },
       },
     });
+  }
+
+  if (operationName === 'RideDetail') {
+    const ride = visualQaRides.find((item) => item.id === body.variables?.id) ?? null;
+
+    return jsonResponse({ data: { ride } });
   }
 
   if (operationName === 'Me') {
