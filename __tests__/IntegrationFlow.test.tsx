@@ -256,11 +256,11 @@ describe('홈/매칭/채팅 통합 흐름', () => {
     renderWithAuth(<Home />);
 
     expect(await screen.findByLabelText('홈')).toHaveAttribute('aria-current', 'page');
-    await user.click(screen.getByLabelText('검색'));
+    await user.click(screen.getByLabelText('기록'));
     await user.click(screen.getByLabelText('채팅'));
     await user.click(screen.getByLabelText('내 정보'));
 
-    expect(push).toHaveBeenCalledWith('/matchings');
+    expect(push).toHaveBeenCalledWith('/payments');
     expect(push).toHaveBeenCalledWith('/chat');
     expect(push).toHaveBeenCalledWith('/profile');
   });
@@ -272,10 +272,10 @@ describe('홈/매칭/채팅 통합 흐름', () => {
     expect(screen.queryByRole('heading', { name: '테크스타터' })).not.toBeInTheDocument();
   });
 
-  it('매칭 검색 실패 시 에러 UI를 표시한다', async () => {
+  it('주변 카풀 조회 실패 시 에러 UI를 표시한다', async () => {
     server.use(
-      graphql.query('SearchRides', () => {
-        return HttpResponse.json({ errors: [{ message: 'search failed' }] }, { status: 500 });
+      graphql.query('NearbyCommuteOffers', () => {
+        return HttpResponse.json({ errors: [{ message: 'nearby failed' }] }, { status: 500 });
       }),
     );
 
