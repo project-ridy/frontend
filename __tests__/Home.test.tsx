@@ -8,15 +8,19 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import Home from '@/app/page';
 import { saveAuthTokens } from '@/lib/auth/token-storage';
 import { TestProviders } from '@/test/TestProviders';
+import type { NearbyCommuteOffersQueryVariables } from '@/src/graphql/generated/graphql';
 
 const push = vi.fn();
+let lastNearbyVariables: NearbyCommuteOffersQueryVariables | null = null;
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
 }));
 
 const server = setupServer(
-  graphql.query('NearbyCommuteOffers', () => {
+  graphql.query('NearbyCommuteOffers', ({ variables }) => {
+    lastNearbyVariables = variables as NearbyCommuteOffersQueryVariables;
+
     return HttpResponse.json({
       data: {
         nearbyCommuteOffers: {
@@ -69,6 +73,7 @@ afterEach(() => {
   server.resetHandlers();
   localStorage.clear();
   push.mockClear();
+  lastNearbyVariables = null;
 });
 afterAll(() => server.close());
 
@@ -212,6 +217,26 @@ describe('홈 화면', () => {
     await user.click(screen.getByRole('button', { name: '현재 위치 사용' }));
 
     expect(await screen.findByText('현재 위치 기준으로 주변 카풀을 보여줍니다.')).toBeInTheDocument();
+  });
+
+  it('FE-NH-006: 현재 위치 5km 반경 테두리와 제한 조회를 표시한다', async () => {
+    vi.stubEnv('NEXT_PUBLIC_KAKAO_MAP_APP_KEY', 'test-kakao-key');
+    const getCurrentPosition = vi.fn((success: PositionCallback) =>
+      success({ coords: { latitude: 37.5, longitude: 127, accuracy: 20 } } as GeolocationPosition),
+    );
+    vi.stubGlobal('navigator', { geolocation: { getCurrentPosition } });
+    const user = userEvent.setup();
+
+    renderAuthenticatedHome();
+
+    expect(await screen.findByText('5km 반경 안의 카풀만 표시합니다.')).toBeInTheDocument();
+    await waitFor(() => expect(lastNearbyVariables?.input.radiusKm).toBe(5));
+
+    await user.click(screen.getByRole('button', { name: '현재 위치 사용' }));
+
+    await waitFor(() => {
+      expect(lastNearbyVariables?.input).toMatchObject({ lat: 37.5, lng: 127, radiusKm: 5 });
+    });
   });
 
   it('선택 버튼을 누르면 카풀 상세로 이동한다', async () => {

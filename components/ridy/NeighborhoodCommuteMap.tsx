@@ -4,9 +4,10 @@ import { MapPin } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { DEFAULT_NEARBY_CENTER, NEARBY_COMMUTE_RADIUS_KM, type NearbyCenter } from '@/hooks/useMatchingQueries';
 import { cn } from '@/lib/utils';
 
-const COMPANY_POSITION = { lat: 37.2636, lng: 127.0286 };
+const RADIUS_METERS = NEARBY_COMMUTE_RADIUS_KM * 1000;
 
 interface KakaoLatLng {
   new (lat: number, lng: number): unknown;
@@ -20,10 +21,25 @@ interface KakaoMarker {
   new (options: { position: unknown; map: unknown }): unknown;
 }
 
+interface KakaoCircle {
+  new (options: {
+    center: unknown;
+    radius: number;
+    strokeWeight: number;
+    strokeColor: string;
+    strokeOpacity: number;
+    strokeStyle: string;
+    fillColor: string;
+    fillOpacity: number;
+    map: unknown;
+  }): unknown;
+}
+
 interface KakaoMaps {
   LatLng: KakaoLatLng;
   Map: KakaoMap;
   Marker?: KakaoMarker;
+  Circle?: KakaoCircle;
   load(callback: () => void): void;
 }
 
@@ -35,6 +51,7 @@ declare global {
 
 interface NeighborhoodCommuteMapProps {
   className?: string;
+  onCenterChange?: (center: NearbyCenter) => void;
 }
 
 let kakaoMapsPromise: Promise<KakaoMaps | undefined> | null = null;
@@ -56,13 +73,13 @@ function loadKakaoMaps(appKey: string): Promise<KakaoMaps | undefined> {
   return kakaoMapsPromise;
 }
 
-export function NeighborhoodCommuteMap({ className }: NeighborhoodCommuteMapProps) {
+export function NeighborhoodCommuteMap({ className, onCenterChange }: NeighborhoodCommuteMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<'ready' | 'fallback'>('ready');
   const [locationStatus, setLocationStatus] = useState('현재 위치를 사용하면 주변 회사행 카풀을 더 정확히 보여줍니다.');
   const appKey = process.env.NEXT_PUBLIC_KAKAO_MAP_APP_KEY;
 
-  const [center, setCenter] = useState(COMPANY_POSITION);
+  const [center, setCenter] = useState<NearbyCenter>(DEFAULT_NEARBY_CENTER);
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -74,7 +91,9 @@ export function NeighborhoodCommuteMap({ className }: NeighborhoodCommuteMapProp
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
+        const nextCenter = { lat: position.coords.latitude, lng: position.coords.longitude };
+        setCenter(nextCenter);
+        onCenterChange?.(nextCenter);
         setLocationStatus('현재 위치 기준으로 주변 카풀을 보여줍니다.');
       },
       () => setLocationStatus('위치 권한이 없어 회사 근무지 기준으로 보여줍니다.'),
@@ -97,6 +116,19 @@ export function NeighborhoodCommuteMap({ className }: NeighborhoodCommuteMapProp
         const map = new maps.Map(mapRef.current, { center: position, level: 5 });
         if (maps.Marker) {
           new maps.Marker({ position, map });
+        }
+        if (maps.Circle) {
+          new maps.Circle({
+            center: position,
+            radius: RADIUS_METERS,
+            strokeWeight: 2,
+            strokeColor: '#2563eb',
+            strokeOpacity: 0.8,
+            strokeStyle: 'solid',
+            fillColor: '#2563eb',
+            fillOpacity: 0.08,
+            map,
+          });
         }
       })
       .catch(() => setStatus('fallback'));
@@ -121,7 +153,13 @@ export function NeighborhoodCommuteMap({ className }: NeighborhoodCommuteMapProp
           </Button>
         </div>
 
-        <div ref={mapRef} className="h-[calc(100%-5rem)] bg-primary-subtle/40" aria-label="회사 근무지 주변 지도" />
+        <div className="relative h-[calc(100%-5rem)] bg-primary-subtle/40">
+          <div ref={mapRef} className="h-full" aria-label="회사 근무지 주변 지도" />
+          <div className="pointer-events-none absolute inset-10 rounded-full border-2 border-primary/70 bg-primary/8" aria-hidden="true" />
+          <p className="absolute left-4 top-4 rounded-pill border border-primary/20 bg-surface/90 px-3 py-1 text-caption font-semibold text-primary shadow-1">
+            5km 반경 안의 카풀만 표시합니다.
+          </p>
+        </div>
 
         {status === 'fallback' ? (
           <p className="border-t border-border-subtle px-4 py-3 text-caption text-text-secondary">

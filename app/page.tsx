@@ -2,13 +2,14 @@
 
 import { MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BottomNavigation } from '@/components/ridy/BottomNavigation';
 import { MatchingCard } from '@/components/ridy/MatchingCard';
 import { NeighborhoodCommuteMap } from '@/components/ridy/NeighborhoodCommuteMap';
 import { Button } from '@/components/ui/button';
-import { useNearbyCommuteOffersQuery } from '@/hooks/useMatchingQueries';
+import { DEFAULT_NEARBY_CENTER, useNearbyCommuteOffersQuery, type NearbyCenter } from '@/hooks/useMatchingQueries';
 import type { NearbyCommuteOffersQuery } from '@/src/graphql/generated/graphql';
 
 const bottomTabs = [
@@ -22,7 +23,8 @@ type HomeRide = NonNullable<NearbyCommuteOffersQuery['nearbyCommuteOffers']>['no
 
 export default function Home() {
   const router = useRouter();
-  const nearbyOffersQuery = useNearbyCommuteOffersQuery();
+  const [nearbyCenter, setNearbyCenter] = useState<NearbyCenter>(DEFAULT_NEARBY_CENTER);
+  const nearbyOffersQuery = useNearbyCommuteOffersQuery(nearbyCenter);
 
   const handleTabChange = (tabId: string) => {
     const routes: Record<string, string> = {
@@ -38,7 +40,7 @@ export default function Home() {
   return (
     <AuthGuard>
       <main className="relative min-h-screen overflow-hidden bg-surface-muted">
-        <NeighborhoodCommuteMap className="box-border h-screen" />
+        <NeighborhoodCommuteMap className="box-border h-screen" onCenterChange={setNearbyCenter} />
 
         <section className="fixed inset-x-0 bottom-24 z-20 mx-auto max-h-[24vh] max-w-6xl overflow-hidden px-4" aria-label="선택 가능한 카풀">
           <div className="rounded-ridy-xl bg-surface/90 p-3 shadow-2 backdrop-blur-xl">
