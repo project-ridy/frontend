@@ -144,18 +144,19 @@ describe('홈 화면', () => {
     expect(screen.getByRole('button', { name: '다시 시도' })).toBeInTheDocument();
   });
 
-  it('하단 내비게이션을 표시하고 검색 탭을 누르면 매칭 화면으로 이동한다', async () => {
+  it('FE-NH-003: 하단 내비게이션은 검색 없이 기록 탭을 표시한다', async () => {
     const user = userEvent.setup();
     renderAuthenticatedHome();
 
     expect(await screen.findByLabelText('홈')).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByLabelText('검색')).toBeInTheDocument();
+    expect(screen.queryByLabelText('검색')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('기록')).toBeInTheDocument();
     expect(screen.getByLabelText('채팅')).toBeInTheDocument();
     expect(screen.getByLabelText('내 정보')).toBeInTheDocument();
 
-    await user.click(screen.getByLabelText('검색'));
+    await user.click(screen.getByLabelText('기록'));
 
-    expect(push).toHaveBeenCalledWith('/matchings');
+    expect(push).toHaveBeenCalledWith('/payments');
   });
 
   it('FE-KT-005: 홈 화면과 하단 내비게이션이 KT responsive shell 기준을 따른다', async () => {
