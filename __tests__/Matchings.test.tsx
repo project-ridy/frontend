@@ -9,10 +9,12 @@ import MatchingDetailPage from '@/app/matchings/[id]/page';
 import MatchingsPage from '@/app/matchings/page';
 import { saveAuthTokens } from '@/lib/auth/token-storage';
 import { TestProviders } from '@/test/TestProviders';
+import type { NearbyCommuteOffersQueryVariables } from '@/src/graphql/generated/graphql';
 
 const push = vi.fn();
 let searchParams = new URLSearchParams('departure=강남역&destination=수원역&departureTime=08:30');
 let routeParams: Record<string, string> = { id: 'ride-1' };
+let lastNearbyVariables: NearbyCommuteOffersQueryVariables | null = null;
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
@@ -76,7 +78,9 @@ const rides = [
 ];
 
 const server = setupServer(
-  graphql.query('NearbyCommuteOffers', () => {
+  graphql.query('NearbyCommuteOffers', ({ variables }) => {
+    lastNearbyVariables = variables as NearbyCommuteOffersQueryVariables;
+
     return HttpResponse.json({
       data: {
         nearbyCommuteOffers: {
@@ -113,6 +117,7 @@ afterEach(() => {
   push.mockClear();
   searchParams = new URLSearchParams('departure=강남역&destination=수원역&departureTime=08:30');
   routeParams = { id: 'ride-1' };
+  lastNearbyVariables = null;
 });
 afterAll(() => server.close());
 
@@ -137,6 +142,7 @@ describe('매칭 결과 화면', () => {
     expect(screen.getAllByText('테크스타터 본사')).toHaveLength(2);
     expect(screen.getByText('5,000원')).toBeInTheDocument();
     expect(screen.getByText('4,500원')).toBeInTheDocument();
+    expect(lastNearbyVariables?.input.radiusKm).toBe(5);
   });
 
   it('주변 카풀이 없으면 빈 상태를 표시한다', async () => {

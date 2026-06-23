@@ -18,6 +18,14 @@ import type {
   SearchRidesQueryVariables,
 } from '@/src/graphql/generated/graphql';
 
+export const NEARBY_COMMUTE_RADIUS_KM = 5;
+export const DEFAULT_NEARBY_CENTER = { lat: 37.2636, lng: 127.0286 } as const;
+
+export interface NearbyCenter {
+  lat: number;
+  lng: number;
+}
+
 export function useMyHomeRidesQuery(status: RideStatus | null = 'OPEN') {
   const variables: MyHomeRidesQueryVariables = {
     status,
@@ -33,12 +41,12 @@ export function useMyHomeRidesQuery(status: RideStatus | null = 'OPEN') {
   });
 }
 
-export function useNearbyCommuteOffersQuery() {
+export function useNearbyCommuteOffersQuery(center: NearbyCenter = DEFAULT_NEARBY_CENTER) {
   const variables: NearbyCommuteOffersQueryVariables = {
     input: {
-      lat: 37.2636,
-      lng: 127.0286,
-      radiusKm: 3,
+      lat: center.lat,
+      lng: center.lng,
+      radiusKm: NEARBY_COMMUTE_RADIUS_KM,
       workplaceId: null,
       departureTimeFrom: null,
       departureTimeTo: null,
