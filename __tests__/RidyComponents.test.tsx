@@ -225,7 +225,7 @@ describe('RouteInput', () => {
 describe('BottomNavigation', () => {
   const tabs = [
     { id: 'home', label: '홈', icon: 'home' as const },
-    { id: 'search', label: '검색', icon: 'search' as const },
+    { id: 'history', label: '기록', icon: 'history' as const },
     { id: 'chat', label: '채팅', icon: 'chat' as const },
     { id: 'profile', label: '프로필', icon: 'profile' as const },
   ];
@@ -234,7 +234,7 @@ describe('BottomNavigation', () => {
     render(<BottomNavigation tabs={tabs} activeTab="home" onTabChange={vi.fn()} />);
 
     expect(screen.getByLabelText('홈')).toBeInTheDocument();
-    expect(screen.getByLabelText('검색')).toBeInTheDocument();
+    expect(screen.getByLabelText('기록')).toBeInTheDocument();
     expect(screen.getByLabelText('채팅')).toBeInTheDocument();
     expect(screen.getByLabelText('프로필')).toBeInTheDocument();
   });
@@ -255,10 +255,10 @@ describe('BottomNavigation', () => {
   });
 
   it('BottomNavigation active tab을 token과 aria-current로 표시한다', () => {
-    render(<BottomNavigation tabs={tabs} activeTab="search" onTabChange={vi.fn()} />);
+    render(<BottomNavigation tabs={tabs} activeTab="history" onTabChange={vi.fn()} />);
 
-    expect(screen.getByLabelText('검색')).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByLabelText('검색')).toHaveClass('text-primary');
+    expect(screen.getByLabelText('기록')).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByLabelText('기록')).toHaveClass('text-primary');
     expect(screen.getByLabelText('홈')).toHaveClass('text-text-secondary');
   });
 
