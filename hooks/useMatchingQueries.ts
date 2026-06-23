@@ -4,12 +4,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import {
   fetchMyHomeRides,
+  fetchNearbyCommuteOffers,
   fetchRideDetail,
   requestRide,
   searchRides,
 } from '@/lib/api/matching-api';
 import type {
   MyHomeRidesQueryVariables,
+  NearbyCommuteOffersQueryVariables,
   RequestRideMutationVariables,
   RideStatus,
   SearchRidesInput,
@@ -28,6 +30,29 @@ export function useMyHomeRidesQuery(status: RideStatus | null = 'OPEN') {
   return useQuery({
     queryKey: ['matching', 'myRides', variables],
     queryFn: () => fetchMyHomeRides(variables),
+  });
+}
+
+export function useNearbyCommuteOffersQuery() {
+  const variables: NearbyCommuteOffersQueryVariables = {
+    input: {
+      lat: 37.2636,
+      lng: 127.0286,
+      radiusKm: 3,
+      workplaceId: null,
+      departureTimeFrom: null,
+      departureTimeTo: null,
+      passengers: 1,
+    },
+    pagination: {
+      first: 10,
+      after: null,
+    },
+  };
+
+  return useQuery({
+    queryKey: ['matching', 'nearbyCommuteOffers', variables],
+    queryFn: () => fetchNearbyCommuteOffers(variables),
   });
 }
 
