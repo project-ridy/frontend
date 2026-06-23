@@ -1,18 +1,15 @@
 'use client';
 
-import { Bell, BriefcaseBusiness, CalendarClock, MapPin, Search, UserRound } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BottomNavigation } from '@/components/ridy/BottomNavigation';
 import { MatchingCard } from '@/components/ridy/MatchingCard';
-import { RouteInput } from '@/components/ridy/RouteInput';
-import { Badge } from '@/components/ui/badge';
+import { NeighborhoodCommuteMap } from '@/components/ridy/NeighborhoodCommuteMap';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { useMyHomeRidesQuery } from '@/hooks/useMatchingQueries';
-import type { MyHomeRidesQuery } from '@/src/graphql/generated/graphql';
+import { useNearbyCommuteOffersQuery } from '@/hooks/useMatchingQueries';
+import type { NearbyCommuteOffersQuery } from '@/src/graphql/generated/graphql';
 
 const bottomTabs = [
   { id: 'home', label: '홈', icon: 'home' as const },
@@ -21,24 +18,11 @@ const bottomTabs = [
   { id: 'profile', label: '내 정보', icon: 'profile' as const },
 ];
 
-type HomeRide = NonNullable<MyHomeRidesQuery['myRides']>['nodes'][number];
+type HomeRide = NonNullable<NearbyCommuteOffersQuery['nearbyCommuteOffers']>['nodes'][number];
 
 export default function Home() {
   const router = useRouter();
-  const [departure, setDeparture] = useState('');
-  const [destination, setDestination] = useState('');
-  const [departureTime, setDepartureTime] = useState('08:30');
-  const myRidesQuery = useMyHomeRidesQuery('OPEN');
-
-  const handleSearch = () => {
-    const params = new URLSearchParams();
-
-    if (departure.trim()) params.set('departure', departure.trim());
-    if (destination.trim()) params.set('destination', destination.trim());
-    if (departureTime) params.set('departureTime', departureTime);
-
-    router.push(`/matchings${params.toString() ? `?${params.toString()}` : ''}`);
-  };
+  const nearbyOffersQuery = useNearbyCommuteOffersQuery();
 
   const handleTabChange = (tabId: string) => {
     const routes: Record<string, string> = {
@@ -53,93 +37,43 @@ export default function Home() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-muted px-page-mobile pb-36 pt-5 sm:px-page-tablet lg:grid lg:max-w-6xl lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:items-start lg:gap-page-desktop lg:px-page-desktop lg:pb-page-desktop">
-        <header className="flex items-center justify-between lg:col-span-2" aria-label="홈 헤더">
-          <div>
-            <p className="text-small font-medium text-gray-500">Ridy</p>
-            <h1 className="text-h2 text-gray-900">테크스타터</h1>
-          </div>
+      <main className="relative min-h-screen overflow-hidden bg-surface-muted">
+        <NeighborhoodCommuteMap className="box-border h-screen" />
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" aria-label="알림">
-              <Bell aria-hidden="true" size={20} />
-            </Button>
-            <Button variant="ghost" size="icon" aria-label="프로필 바로가기">
-              <UserRound aria-hidden="true" size={20} />
-            </Button>
-          </div>
-        </header>
-
-        <section className="mt-6 lg:sticky lg:top-6" aria-label="경로 검색" aria-labelledby="route-search-heading">
-          <Card className="border-border-default bg-surface shadow-2">
-            <CardContent className="space-y-gap-normal p-4">
+        <section className="fixed inset-x-0 bottom-24 z-20 mx-auto max-h-[24vh] max-w-6xl overflow-hidden px-4" aria-label="선택 가능한 카풀">
+          <div className="rounded-ridy-xl bg-surface/90 p-3 shadow-2 backdrop-blur-xl">
+            <div className="mb-2 flex items-center justify-between gap-3">
               <div>
-                <Badge className="bg-secondary/10 text-secondary hover:bg-secondary/10">
-                  같은 회사 동료만
-                </Badge>
-                <h2 id="route-search-heading" className="mt-3 text-h2 text-gray-900">
-                  어디로 가세요?
-                </h2>
-                <p className="mt-1 text-caption text-text-secondary">출근길 흐름에 맞는 동료 카풀을 바로 찾아드릴게요.</p>
+                <h2 className="text-body font-bold text-gray-900">선택 가능한 카풀</h2>
+                <p className="text-caption text-gray-500">주변 회사행 카풀</p>
               </div>
-
-              <RouteInput
-                departure={departure}
-                destination={destination}
-                onDepartureChange={setDeparture}
-                onDestinationChange={setDestination}
-              />
-
-              <label className="block" htmlFor="departure-time">
-                <span className="mb-2 flex items-center gap-2 text-caption font-semibold text-gray-900">
-                  <CalendarClock aria-hidden="true" size={16} className="text-primary" />
-                  출발 시간
-                </span>
-                <input
-                  id="departure-time"
-                  type="time"
-                  value={departureTime}
-                  onChange={(event) => setDepartureTime(event.target.value)}
-                  className="h-input w-full rounded-button border border-gray-100 bg-white px-3 text-body text-gray-900 outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-              </label>
-
-              <Button type="button" className="h-12 w-full" onClick={handleSearch}>
-                <Search aria-hidden="true" size={18} />
-                매칭 찾기
+              <Button type="button" variant="outline" size="sm" onClick={() => router.push('/matchings')}>
+                전체 보기
               </Button>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section className="mt-6 space-y-gap-normal lg:mt-0" aria-labelledby="regular-rides-heading">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 id="regular-rides-heading" className="text-h3 text-gray-900">
-                내 정기 카풀
-              </h2>
-              <p className="mt-1 text-caption text-gray-500">출근길에 자주 만나는 동료 카풀이에요.</p>
             </div>
-            <BriefcaseBusiness aria-hidden="true" size={22} className="text-primary" />
-          </div>
 
-          <div className="space-y-gap-tight">
-            {myRidesQuery.isPending ? <HomeRideSkeleton /> : null}
-            {myRidesQuery.isError ? <HomeRideError onRetry={() => void myRidesQuery.refetch()} /> : null}
-            {myRidesQuery.isSuccess && myRidesQuery.data.nodes.length === 0 ? <HomeRideEmpty /> : null}
-            {myRidesQuery.isSuccess
-              ? myRidesQuery.data.nodes.map((ride) => (
+            <div className="flex snap-x gap-3 overflow-x-auto pb-1">
+            {nearbyOffersQuery.isPending ? <HomeRideSkeleton /> : null}
+            {nearbyOffersQuery.isError ? <HomeRideError onRetry={() => void nearbyOffersQuery.refetch()} /> : null}
+            {nearbyOffersQuery.isSuccess && nearbyOffersQuery.data.nodes.length === 0 ? <HomeRideEmpty /> : null}
+            {nearbyOffersQuery.isSuccess
+              ? nearbyOffersQuery.data.nodes.map((ride) => (
                   <MatchingCard
                     key={ride.id}
                     driverName={ride.driver.name}
-                    departure={ride.departureAddr ?? '출발지 미정'}
-                    destination={ride.arrivalAddr ?? '도착지 미정'}
+                    departure={ride.pickupLabel}
+                    destination={ride.workplace.name}
                     departureTime={formatRideTime(ride.departureTime)}
                     estimatedFare={formatFare(ride.fare)}
                     availableSeats={ride.availableSeats}
+                    ctaLabel="선택"
+                    compact
+                    className="min-w-72 snap-center"
+                    onClick={() => router.push(`/matchings/${ride.id}`)}
                   />
                 ))
               : null}
+            </div>
           </div>
         </section>
       </main>

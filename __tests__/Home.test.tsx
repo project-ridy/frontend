@@ -16,10 +16,10 @@ vi.mock('next/navigation', () => ({
 }));
 
 const server = setupServer(
-  graphql.query('MyHomeRides', () => {
+  graphql.query('NearbyCommuteOffers', () => {
     return HttpResponse.json({
       data: {
-        myRides: {
+        nearbyCommuteOffers: {
           totalCount: 1,
           pageInfo: {
             hasNextPage: false,
@@ -28,10 +28,23 @@ const server = setupServer(
           nodes: [
             {
               id: 'ride-1',
+              companyId: 'company-1',
+              pickupLabel: '강남역 인근',
+              pickupPrivacy: 'APPROXIMATE',
               departure: { lat: 37.4979, lng: 127.0276 },
               departureAddr: '강남역',
               arrival: { lat: 37.2636, lng: 127.0286 },
               arrivalAddr: '수원역',
+              workplace: {
+                id: 'workplace-1',
+                name: '테크스타터 본사',
+                lat: 37.2636,
+                lng: 127.0286,
+                address: '수원시 팔달구',
+                isDefault: true,
+                createdAt: '2026-06-12T00:00:00.000Z',
+                updatedAt: '2026-06-12T00:00:00.000Z',
+              },
               departureTime: '2026-06-12T08:30:00.000Z',
               availableSeats: 2,
               fare: 5000,
@@ -80,29 +93,27 @@ describe('홈 화면', () => {
     expect(screen.queryByRole('heading', { name: '테크스타터' })).not.toBeInTheDocument();
   });
 
-  it('탑승자 홈의 경로 검색과 정기 카풀을 보여준다', async () => {
+  it('탑승자 홈에 지도 전체 화면과 하단 카풀 카드를 보여준다', async () => {
     renderAuthenticatedHome();
 
-    expect(await screen.findByRole('heading', { name: '테크스타터' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '어디로 가세요?' })).toBeInTheDocument();
-    expect(screen.getByLabelText('출발지')).toBeInTheDocument();
-    expect(screen.getByLabelText('도착지')).toBeInTheDocument();
-    expect(screen.getByLabelText('출발 시간')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /매칭 찾기/ })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '내 정기 카풀' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('홈 헤더')).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).not.toHaveClass('pt-24');
+    expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toHaveClass('max-h-[24vh]');
     expect(await screen.findByText('박준서')).toBeInTheDocument();
-    expect(screen.getByText('강남역')).toBeInTheDocument();
-    expect(screen.getByText('수원역')).toBeInTheDocument();
+    expect(screen.getByText('강남역 인근')).toBeInTheDocument();
+    expect(screen.getByText('테크스타터 본사')).toBeInTheDocument();
     expect(screen.getByText('5,000원')).toBeInTheDocument();
     expect(screen.queryByText('첫 카풀을 찾아보세요')).not.toBeInTheDocument();
   });
 
   it('내 카풀이 없으면 빈 상태를 보여준다', async () => {
     server.use(
-      graphql.query('MyHomeRides', () => {
+      graphql.query('NearbyCommuteOffers', () => {
         return HttpResponse.json({
           data: {
-            myRides: {
+            nearbyCommuteOffers: {
               totalCount: 0,
               pageInfo: { hasNextPage: false, endCursor: null },
               nodes: [],
@@ -120,7 +131,7 @@ describe('홈 화면', () => {
 
   it('내 카풀 조회가 실패하면 에러 상태와 재시도 버튼을 보여준다', async () => {
     server.use(
-      graphql.query('MyHomeRides', () => {
+      graphql.query('NearbyCommuteOffers', () => {
         return HttpResponse.json({
           errors: [{ message: '카풀 목록을 불러오지 못했습니다.' }],
         });
@@ -131,20 +142,6 @@ describe('홈 화면', () => {
 
     expect(await screen.findByText('카풀 목록을 불러오지 못했습니다.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '다시 시도' })).toBeInTheDocument();
-  });
-
-  it('경로와 시간을 입력하면 매칭 결과로 이동한다', async () => {
-    const user = userEvent.setup();
-    renderAuthenticatedHome();
-
-    await screen.findByRole('heading', { name: '테크스타터' });
-    await user.type(screen.getByLabelText('출발지'), '강남역');
-    await user.type(screen.getByLabelText('도착지'), '수원역');
-    await user.clear(screen.getByLabelText('출발 시간'));
-    await user.type(screen.getByLabelText('출발 시간'), '09:10');
-    await user.click(screen.getByRole('button', { name: /매칭 찾기/ }));
-
-    expect(push).toHaveBeenCalledWith('/matchings?departure=%EA%B0%95%EB%82%A8%EC%97%AD&destination=%EC%88%98%EC%9B%90%EC%97%AD&departureTime=09%3A10');
   });
 
   it('하단 내비게이션을 표시하고 검색 탭을 누르면 매칭 화면으로 이동한다', async () => {
@@ -164,20 +161,11 @@ describe('홈 화면', () => {
   it('FE-KT-005: 홈 화면과 하단 내비게이션이 KT responsive shell 기준을 따른다', async () => {
     renderAuthenticatedHome();
 
-    expect(await screen.findByRole('heading', { name: '테크스타터' })).toBeInTheDocument();
+    expect(await screen.findByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
 
-    const main = screen.getByRole('main');
-    expect(main).toHaveClass('bg-surface-muted');
-    expect(main).toHaveClass('lg:max-w-6xl');
-    expect(main).toHaveClass('lg:px-page-desktop');
-    expect(main).toHaveClass('lg:pb-page-desktop');
-
-    const routeSearchSection = screen.getByRole('region', { name: '어디로 가세요?' });
-    expect(routeSearchSection).toHaveClass('lg:sticky');
-    expect(routeSearchSection).toHaveClass('lg:top-6');
-
-    const regularRidesSection = screen.getByRole('region', { name: '내 정기 카풀' });
-    expect(regularRidesSection).toHaveClass('lg:mt-0');
+    expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
+    expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toHaveClass('h-screen');
+    expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toHaveClass('fixed');
 
     const navigation = screen.getByRole('navigation', { name: '하단 내비게이션' });
     expect(navigation).toHaveClass('bg-surface-raised');
@@ -187,15 +175,50 @@ describe('홈 화면', () => {
     expect(screen.getByLabelText('홈')).toHaveClass('min-h-11');
   });
 
-  it('FE-KT-PURE-003: 홈 검색 카드가 gradient strip 없이 KT surface hierarchy를 사용한다', async () => {
+  it('FE-KT-PURE-003: 홈 지도 화면이 gradient strip 없이 KT surface hierarchy를 사용한다', async () => {
     renderAuthenticatedHome();
 
-    const routeSearchSection = await screen.findByRole('region', { name: '어디로 가세요?' });
+    const mapSection = await screen.findByRole('region', { name: '동네 주변 회사행 카풀 지도' });
 
-    expect(routeSearchSection.innerHTML).not.toContain('bg-gradient-to-r');
-    expect(routeSearchSection.innerHTML).not.toContain('from-primary');
-    expect(routeSearchSection.innerHTML).not.toContain('to-secondary');
-    expect(routeSearchSection.innerHTML).not.toContain('shadow-4');
-    expect(routeSearchSection.innerHTML).toContain('bg-surface');
+    expect(mapSection.innerHTML).not.toContain('bg-gradient-to-r');
+    expect(mapSection.innerHTML).not.toContain('from-primary');
+    expect(mapSection.innerHTML).not.toContain('to-secondary');
+    expect(mapSection.innerHTML).toContain('bg-surface');
+  });
+
+  it('FE-NW-002: Kakao 키가 있으면 동네 주변 회사행 카풀 지도 영역을 보여준다', async () => {
+    vi.stubEnv('NEXT_PUBLIC_KAKAO_MAP_APP_KEY', 'test-kakao-key');
+
+    renderAuthenticatedHome();
+
+    expect(await screen.findByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
+    expect(screen.getByText('Kakao 지도')).toBeInTheDocument();
+    expect(screen.getByText('테크스타터 출근길')).toBeInTheDocument();
+  });
+
+  it('FE-NW-002: 위치 권한이 허용되면 현재 위치 기준 안내를 보여준다', async () => {
+    vi.stubEnv('NEXT_PUBLIC_KAKAO_MAP_APP_KEY', 'test-kakao-key');
+    const getCurrentPosition = vi.fn((success: PositionCallback) =>
+      success({ coords: { latitude: 37.5, longitude: 127, accuracy: 20 } } as GeolocationPosition),
+    );
+    vi.stubGlobal('navigator', { geolocation: { getCurrentPosition } });
+    const user = userEvent.setup();
+
+    renderAuthenticatedHome();
+
+    expect(getCurrentPosition).not.toHaveBeenCalled();
+    expect(screen.getByText('현재 위치를 사용하면 주변 회사행 카풀을 더 정확히 보여줍니다.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '현재 위치 사용' }));
+
+    expect(await screen.findByText('현재 위치 기준으로 주변 카풀을 보여줍니다.')).toBeInTheDocument();
+  });
+
+  it('선택 버튼을 누르면 카풀 상세로 이동한다', async () => {
+    const user = userEvent.setup();
+    renderAuthenticatedHome();
+
+    await user.click(await screen.findByRole('button', { name: '선택' }));
+
+    expect(push).toHaveBeenCalledWith('/matchings/ride-1');
   });
 });

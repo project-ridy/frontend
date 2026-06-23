@@ -1,10 +1,13 @@
 import {
   MyHomeRidesDocument,
+  NearbyCommuteOffersDocument,
   RequestRideDocument,
   RideDetailDocument,
   SearchRidesDocument,
   type MyHomeRidesQuery,
   type MyHomeRidesQueryVariables,
+  type NearbyCommuteOffersQuery,
+  type NearbyCommuteOffersQueryVariables,
   type RequestRideMutation,
   type RequestRideMutationVariables,
   type RideDetailQuery,
@@ -28,6 +31,21 @@ export async function fetchMyHomeRides(
   }
 
   return data.myRides;
+}
+
+export async function fetchNearbyCommuteOffers(
+  variables: NearbyCommuteOffersQueryVariables,
+): Promise<NonNullable<NearbyCommuteOffersQuery['nearbyCommuteOffers']>> {
+  const data = await executeGraphql<NearbyCommuteOffersQuery, NearbyCommuteOffersQueryVariables>(
+    NearbyCommuteOffersDocument,
+    variables,
+  );
+
+  if (!data.nearbyCommuteOffers) {
+    throw new Error('주변 카풀 응답이 비어 있습니다.');
+  }
+
+  return data.nearbyCommuteOffers;
 }
 
 export async function searchRides(

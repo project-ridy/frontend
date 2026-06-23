@@ -8,11 +8,11 @@ afterEach(() => {
   process.env.RIDY_VISUAL_QA_FIXTURE = ORIGINAL_VISUAL_QA_FIXTURE;
 });
 
-function createGraphqlRequest(operationName: string, query: string) {
+function createGraphqlRequest(operationName: string, query: string, variables: Record<string, unknown> = {}) {
   return new Request('http://localhost/graphql', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ operationName, query, variables: {} }),
+    body: JSON.stringify({ operationName, query, variables }),
   });
 }
 
@@ -35,8 +35,19 @@ describe('visual QA GraphQL fixture route', () => {
     const home = await parseJson(
       await POST(createGraphqlRequest('MyHomeRides', 'query MyHomeRides { myRides { nodes { id } } }')),
     );
+    const nearby = await parseJson(
+      await POST(
+        createGraphqlRequest(
+          'NearbyCommuteOffers',
+          'query NearbyCommuteOffers { nearbyCommuteOffers { nodes { id pickupLabel } } }',
+        ),
+      ),
+    );
     const matchings = await parseJson(
       await POST(createGraphqlRequest('SearchRides', 'query SearchRides { searchRides { nodes { id } } }')),
+    );
+    const rideDetail = await parseJson(
+      await POST(createGraphqlRequest('RideDetail', 'query RideDetail($id: ID!) { ride(id: $id) { id } }', { id: 'ride-visual-qa-1' })),
     );
     const me = await parseJson(await POST(createGraphqlRequest('Me', 'query Me { me { id } }')));
     const vehicles = await parseJson(
@@ -44,7 +55,9 @@ describe('visual QA GraphQL fixture route', () => {
     );
 
     expect(home.data?.myRides).toMatchObject({ totalCount: 2 });
+    expect(nearby.data?.nearbyCommuteOffers).toMatchObject({ totalCount: 2 });
     expect(matchings.data?.searchRides).toMatchObject({ totalCount: 2 });
+    expect(rideDetail.data?.ride).toMatchObject({ id: 'ride-visual-qa-1', pickupLabel: '강남역 인근' });
     expect(me.data?.me).toMatchObject({ name: '김서연', company: { name: '테크스타터' } });
     expect(vehicles.data?.myVehicles).toEqual(
       expect.arrayContaining([expect.objectContaining({ model: '아이오닉 5', plate: '12가 3456' })]),

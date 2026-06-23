@@ -19,6 +19,7 @@ interface MatchingCardProps {
   status?: MatchingStatus;
   ctaLabel?: string;
   onClick?: () => void;
+  compact?: boolean;
   className?: string;
 }
 
@@ -42,6 +43,7 @@ export function MatchingCard({
   status,
   ctaLabel,
   onClick,
+  compact = false,
   className,
 }: MatchingCardProps) {
   const seatsLabel = availableSeats === 0 ? '만석' : `${availableSeats}석${status ? ' 남음' : ''}`;
@@ -64,7 +66,7 @@ export function MatchingCard({
         if (e.key === 'Enter' || e.key === ' ') onClick();
       } : undefined}
     >
-      <CardContent className="p-4">
+      <CardContent className={compact ? 'p-3' : 'p-4'}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <span className="block truncate text-body font-bold text-text-primary">{driverName}</span>
@@ -76,7 +78,7 @@ export function MatchingCard({
           {status ? <Badge variant={statusVariant[status]}>{status}</Badge> : null}
         </div>
 
-        <div className="mt-4 rounded-ridy-md bg-surface-secondary/70 p-3">
+        <div className={compact ? 'mt-2 rounded-ridy-md bg-surface-secondary/70 p-2' : 'mt-4 rounded-ridy-md bg-surface-secondary/70 p-3'}>
           <div className="flex min-w-0 items-center gap-2 text-caption text-text-secondary">
             <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-subtle text-primary">
               <MapPin aria-hidden="true" size={14} />
@@ -87,10 +89,10 @@ export function MatchingCard({
           </div>
         </div>
 
-        <div className="mt-4 flex items-end justify-between gap-3">
+        <div className={compact ? 'mt-2 flex items-end justify-between gap-3' : 'mt-4 flex items-end justify-between gap-3'}>
           <div>
             <span className="text-caption font-medium text-text-tertiary">예상 정산</span>
-            <span className="mt-0.5 block text-h2 font-extrabold text-text-primary">{estimatedFare}</span>
+            <span className={compact ? 'mt-0.5 block text-body font-extrabold text-text-primary' : 'mt-0.5 block text-h2 font-extrabold text-text-primary'}>{estimatedFare}</span>
           </div>
           <div className="inline-flex items-center gap-1 rounded-pill bg-primary-subtle px-3 py-1.5 text-caption font-semibold text-primary">
             <Users aria-hidden="true" size={14} />
@@ -99,14 +101,22 @@ export function MatchingCard({
         </div>
 
         {(shouldShowCta || unavailableReason) ? (
-          <div className="mt-4 flex items-center justify-between gap-3 border-t border-border-subtle pt-3">
+          <div className={compact ? 'mt-2 flex items-center justify-between gap-3 border-t border-border-subtle pt-2' : 'mt-4 flex items-center justify-between gap-3 border-t border-border-subtle pt-3'}>
             <div className="flex min-w-0 flex-col items-start gap-1">
               {unavailableReason ? (
                 <span className="text-caption text-text-secondary">{unavailableReason}</span>
               ) : null}
             </div>
             {shouldShowCta ? (
-              <Button type="button" size="sm" className="min-h-11" onClick={(event) => event.stopPropagation()}>
+              <Button
+                type="button"
+                size="sm"
+                className={compact ? 'min-h-9' : 'min-h-11'}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onClick?.();
+                }}
+              >
                 {ctaLabel}
               </Button>
             ) : null}

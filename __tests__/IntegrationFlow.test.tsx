@@ -41,10 +41,23 @@ vi.mock('socket.io-client', () => ({
 const rides = [
   {
     id: 'ride-1',
+    companyId: 'company-1',
+    pickupLabel: '강남역 인근',
+    pickupPrivacy: 'APPROXIMATE',
     departure: { lat: 37.4979, lng: 127.0276 },
     departureAddr: '강남역',
     arrival: { lat: 37.2636, lng: 127.0286 },
     arrivalAddr: '수원역',
+    workplace: {
+      id: 'workplace-1',
+      name: '테크스타터 본사',
+      lat: 37.2636,
+      lng: 127.0286,
+      address: '수원시 팔달구',
+      isDefault: true,
+      createdAt: '2026-06-12T00:00:00.000Z',
+      updatedAt: '2026-06-12T00:00:00.000Z',
+    },
     departureTime: '2026-06-12T08:30:00.000Z',
     availableSeats: 2,
     fare: 5000,
@@ -54,10 +67,23 @@ const rides = [
   },
   {
     id: 'ride-2',
+    companyId: 'company-1',
+    pickupLabel: '강남역 인근',
+    pickupPrivacy: 'APPROXIMATE',
     departure: { lat: 37.4979, lng: 127.0276 },
     departureAddr: '강남역',
     arrival: { lat: 37.2636, lng: 127.0286 },
     arrivalAddr: '수원역',
+    workplace: {
+      id: 'workplace-1',
+      name: '테크스타터 본사',
+      lat: 37.2636,
+      lng: 127.0286,
+      address: '수원시 팔달구',
+      isDefault: true,
+      createdAt: '2026-06-12T00:00:00.000Z',
+      updatedAt: '2026-06-12T00:00:00.000Z',
+    },
     departureTime: '2026-06-12T08:45:00.000Z',
     availableSeats: 1,
     fare: 4500,
@@ -85,10 +111,10 @@ const chatRooms = [
 ];
 
 const server = setupServer(
-  graphql.query('MyHomeRides', () => {
+  graphql.query('NearbyCommuteOffers', () => {
     return HttpResponse.json({
       data: {
-        myRides: {
+        nearbyCommuteOffers: {
           totalCount: 1,
           pageInfo: { hasNextPage: false, endCursor: 'ride-1' },
           nodes: [rides[0]],
@@ -164,23 +190,20 @@ describe('홈/매칭/채팅 통합 흐름', () => {
   it('인증 후 홈 화면에 진입한다', async () => {
     renderWithAuth(<Home />);
 
-    expect(await screen.findByRole('heading', { name: '테크스타터' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '어디로 가세요?' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '테크스타터 출근길' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '선택 가능한 카풀' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
     expect(await screen.findByText('박준서')).toBeInTheDocument();
   });
 
-  it('홈에서 검색 조건을 입력해 매칭 결과로 이동한다', async () => {
+  it('홈에서 전체 카풀 목록으로 이동한다', async () => {
     const user = userEvent.setup();
     renderWithAuth(<Home />);
 
-    await screen.findByRole('heading', { name: '테크스타터' });
-    await user.type(screen.getByLabelText('출발지'), '강남역');
-    await user.type(screen.getByLabelText('도착지'), '수원역');
-    await user.clear(screen.getByLabelText('출발 시간'));
-    await user.type(screen.getByLabelText('출발 시간'), '09:10');
-    await user.click(screen.getByRole('button', { name: /매칭 찾기/ }));
+    await screen.findByRole('heading', { name: '테크스타터 출근길' });
+    await user.click(screen.getByRole('button', { name: '전체 보기' }));
 
-    expect(push).toHaveBeenCalledWith('/matchings?departure=%EA%B0%95%EB%82%A8%EC%97%AD&destination=%EC%88%98%EC%9B%90%EC%97%AD&departureTime=09%3A10');
+    expect(push).toHaveBeenCalledWith('/matchings');
   });
 
   it('매칭 결과에서 상세로 이동해 탑승 요청을 보낸다', async () => {
