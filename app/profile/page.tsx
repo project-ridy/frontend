@@ -25,7 +25,7 @@ import type { MyVehiclesQuery, Role } from '@/src/graphql/generated/graphql';
 
 const bottomTabs = [
   { id: 'home', label: '홈', icon: 'home' as const },
-  { id: 'search', label: '검색', icon: 'search' as const },
+  { id: 'history', label: '기록', icon: 'history' as const },
   { id: 'chat', label: '채팅', icon: 'chat' as const },
   { id: 'profile', label: '내 정보', icon: 'profile' as const },
 ];
@@ -103,7 +103,7 @@ export default function ProfilePage() {
   const handleTabChange = (tabId: string) => {
     const routes: Record<string, string> = {
       home: '/',
-      search: '/matchings',
+      history: '/payments',
       chat: '/chat',
       profile: '/profile',
     };
