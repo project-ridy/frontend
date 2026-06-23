@@ -35,6 +35,56 @@ query MyHomeRides($status: RideStatus, $pagination: PaginationInput) {
   }
 }
 
+query NearbyCommuteOffers($input: NearbyCommuteOffersInput!, $pagination: PaginationInput) {
+  nearbyCommuteOffers(input: $input, pagination: $pagination) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    nodes {
+      id
+      companyId
+      pickupLabel
+      pickupPrivacy
+      departure {
+        lat
+        lng
+      }
+      departureAddr
+      arrival {
+        lat
+        lng
+      }
+      arrivalAddr
+      workplace {
+        id
+        name
+        lat
+        lng
+        address
+        isDefault
+        createdAt
+        updatedAt
+      }
+      departureTime
+      availableSeats
+      fare
+      status
+      driver {
+        id
+        name
+        rating
+        rideCount
+      }
+      requests {
+        id
+        status
+      }
+    }
+  }
+}
+
 query SearchRides($input: SearchRidesInput!, $pagination: PaginationInput) {
   searchRides(input: $input, pagination: $pagination) {
     totalCount
