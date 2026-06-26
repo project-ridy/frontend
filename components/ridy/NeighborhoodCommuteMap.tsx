@@ -1,6 +1,7 @@
 'use client';
 
 import { MapPin } from 'lucide-react';
+import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,9 @@ import {
   type NearbyRadiusKm,
 } from '@/hooks/useMatchingQueries';
 import { cn } from '@/lib/utils';
+import type { NearbyCommuteOffersQuery } from '@/src/graphql/generated/graphql';
+
+type NearbyRideMarker = NonNullable<NearbyCommuteOffersQuery['nearbyCommuteOffers']>['nodes'][number];
 
 const MAP_LEVEL_BY_RADIUS: Record<NearbyRadiusKm, number> = {
   1: 6,
@@ -61,8 +65,10 @@ declare global {
 interface NeighborhoodCommuteMapProps {
   className?: string;
   radiusKm: NearbyRadiusKm;
+  rides?: readonly NearbyRideMarker[];
   onRadiusChange: (radiusKm: NearbyRadiusKm) => void;
   onCenterChange?: (center: NearbyCenter) => void;
+  onRideSelect?: (rideId: string) => void;
 }
 
 let kakaoMapsPromise: Promise<KakaoMaps | undefined> | null = null;
@@ -84,7 +90,14 @@ function loadKakaoMaps(appKey: string): Promise<KakaoMaps | undefined> {
   return kakaoMapsPromise;
 }
 
-export function NeighborhoodCommuteMap({ className, radiusKm, onRadiusChange, onCenterChange }: NeighborhoodCommuteMapProps) {
+export function NeighborhoodCommuteMap({
+  className,
+  radiusKm,
+  rides = [],
+  onRadiusChange,
+  onCenterChange,
+  onRideSelect,
+}: NeighborhoodCommuteMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<'ready' | 'fallback'>('ready');
   const [locationStatus, setLocationStatus] = useState('현재 위치를 사용하면 주변 회사행 카풀을 더 정확히 보여줍니다.');
@@ -172,6 +185,19 @@ export function NeighborhoodCommuteMap({ className, radiusKm, onRadiusChange, on
               aria-hidden="true"
             />
           ) : null}
+          <div className="pointer-events-none absolute inset-0" aria-label="주변 카풀 지도 마커">
+            {rides.map((ride, index) => (
+              <button
+                key={ride.id}
+                type="button"
+                className="pointer-events-auto absolute size-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-primary shadow-2 transition-transform duration-fast hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                style={getMarkerPosition(index)}
+                aria-label={`${ride.driver.name} 지도 마커`}
+                title={`${ride.driver.name} · ${ride.pickupLabel}`}
+                onClick={() => onRideSelect?.(ride.id)}
+              />
+            ))}
+          </div>
           <div className="absolute left-4 top-4 space-y-2">
             <div className="flex gap-2 rounded-pill border border-primary/20 bg-surface/90 p-1 shadow-1 backdrop-blur-xl" aria-label="반경 선택">
               {NEARBY_COMMUTE_RADIUS_OPTIONS.map((option) => (
@@ -202,4 +228,15 @@ export function NeighborhoodCommuteMap({ className, radiusKm, onRadiusChange, on
       </div>
     </section>
   );
+}
+
+function getMarkerPosition(index: number): CSSProperties {
+  const positions = [
+    { left: '35%', top: '42%' },
+    { left: '58%', top: '36%' },
+    { left: '66%', top: '55%' },
+    { left: '44%', top: '62%' },
+  ] as const;
+
+  return positions[index % positions.length];
 }
