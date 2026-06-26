@@ -210,7 +210,7 @@ describe('홈/매칭/채팅 통합 흐름', () => {
     const user = userEvent.setup();
     renderWithAuth(<MatchingsPage />);
 
-    await user.click(await screen.findByRole('button', { name: /박준서/ }));
+    await user.click(await screen.findByRole('button', { name: '박준서 카풀 카드' }));
     expect(push).toHaveBeenCalledWith('/matchings/ride-1');
 
     cleanup();
@@ -275,7 +275,7 @@ describe('홈/매칭/채팅 통합 흐름', () => {
 
     renderWithAuth(<MatchingsPage />);
 
-    expect(await screen.findByText('매칭 결과를 불러오지 못했습니다.')).toBeInTheDocument();
+    expect(await screen.findByText('카풀 목록을 불러오지 못했습니다.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '다시 시도' })).toBeInTheDocument();
   });
 

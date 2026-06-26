@@ -1,7 +1,7 @@
 import React from 'react';
 import { HttpResponse, graphql } from 'msw';
 import { setupServer } from 'msw/node';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -127,15 +127,17 @@ function renderWithAuth(ui: React.ReactNode) {
 }
 
 describe('매칭 결과 화면', () => {
-  it('FE-NH-004: 검색 UI 없이 주변 카풀 카드 리스트를 표시한다', async () => {
+  it('FE-NH-004: 검색 UI 없이 홈 주변 카풀 UI를 재사용한다', async () => {
     renderWithAuth(<MatchingsPage />);
 
-    expect(await screen.findByRole('heading', { name: '주변 카풀' })).toBeInTheDocument();
+    expect(await screen.findByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: '하단 내비게이션' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '주변 카풀' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: '매칭 결과' })).not.toBeInTheDocument();
     expect(screen.queryByText('강남역 → 수원역')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '요금순' })).not.toBeInTheDocument();
-    expect(await screen.findByText('2명의 동료')).toBeInTheDocument();
-    expect(screen.getByText('박준서')).toBeInTheDocument();
+    expect(await screen.findByText('박준서')).toBeInTheDocument();
     expect(screen.getByText('이민수')).toBeInTheDocument();
     expect(screen.getByText('강남역 인근')).toBeInTheDocument();
     expect(screen.getByText('역삼동 인근')).toBeInTheDocument();
@@ -162,31 +164,25 @@ describe('매칭 결과 화면', () => {
 
     renderWithAuth(<MatchingsPage />);
 
-    expect(await screen.findByText('근처 카풀이 없습니다')).toBeInTheDocument();
+    expect(await screen.findByText('첫 카풀을 찾아보세요')).toBeInTheDocument();
   });
 
   it('카드를 누르면 상세 화면으로 이동한다', async () => {
     const user = userEvent.setup();
     renderWithAuth(<MatchingsPage />);
 
-    await user.click(await screen.findByRole('button', { name: /박준서/ }));
+    await user.click(await screen.findByRole('button', { name: '박준서 카풀 카드' }));
 
     expect(push).toHaveBeenCalledWith('/matchings/ride-1');
   });
 
-  it('FE-KT-006: 매칭 결과 카드가 KT badge와 route hierarchy를 유지한다', async () => {
+  it('FE-KT-006: 매칭 딥링크가 홈 지도 surface hierarchy를 유지한다', async () => {
     renderWithAuth(<MatchingsPage />);
 
-    const cards = await screen.findAllByTestId('matching-result-card');
-    const firstCard = within(cards[0]!);
-
     expect(screen.getByRole('main')).toHaveClass('bg-surface-muted');
-    expect(firstCard.getByLabelText('박준서 카풀 카드')).toHaveClass('bg-surface');
-    expect(firstCard.getByText('OPEN')).toHaveClass('bg-primary-subtle');
-    expect(firstCard.getByText('강남역 인근')).toHaveClass('text-text-primary');
-    expect(firstCard.getByText('테크스타터 본사')).toHaveClass('text-text-primary');
-    expect(firstCard.getByText('5,000원')).toHaveClass('text-text-primary');
-    expect(firstCard.getByText('2석 남음')).toHaveClass('text-text-secondary');
+    expect(await screen.findByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toHaveClass('h-screen');
+    expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toHaveClass('fixed');
+    expect(await screen.findByLabelText('박준서 카풀 카드')).toHaveClass('bg-surface');
   });
 });
 
