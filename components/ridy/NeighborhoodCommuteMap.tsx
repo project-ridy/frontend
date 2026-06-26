@@ -4,10 +4,19 @@ import { MapPin } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { DEFAULT_NEARBY_CENTER, NEARBY_COMMUTE_RADIUS_KM, type NearbyCenter } from '@/hooks/useMatchingQueries';
+import {
+  DEFAULT_NEARBY_CENTER,
+  NEARBY_COMMUTE_RADIUS_OPTIONS,
+  type NearbyCenter,
+  type NearbyRadiusKm,
+} from '@/hooks/useMatchingQueries';
 import { cn } from '@/lib/utils';
 
-const RADIUS_METERS = NEARBY_COMMUTE_RADIUS_KM * 1000;
+const MAP_LEVEL_BY_RADIUS: Record<NearbyRadiusKm, number> = {
+  1: 6,
+  2: 7,
+  5: 8,
+};
 
 interface KakaoLatLng {
   new (lat: number, lng: number): unknown;
@@ -51,6 +60,8 @@ declare global {
 
 interface NeighborhoodCommuteMapProps {
   className?: string;
+  radiusKm: NearbyRadiusKm;
+  onRadiusChange: (radiusKm: NearbyRadiusKm) => void;
   onCenterChange?: (center: NearbyCenter) => void;
 }
 
@@ -73,7 +84,7 @@ function loadKakaoMaps(appKey: string): Promise<KakaoMaps | undefined> {
   return kakaoMapsPromise;
 }
 
-export function NeighborhoodCommuteMap({ className, onCenterChange }: NeighborhoodCommuteMapProps) {
+export function NeighborhoodCommuteMap({ className, radiusKm, onRadiusChange, onCenterChange }: NeighborhoodCommuteMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<'ready' | 'fallback'>('ready');
   const [locationStatus, setLocationStatus] = useState('현재 위치를 사용하면 주변 회사행 카풀을 더 정확히 보여줍니다.');
@@ -113,14 +124,14 @@ export function NeighborhoodCommuteMap({ className, onCenterChange }: Neighborho
       .then((maps) => {
         if (cancelled || !mapRef.current || !maps) return;
         const position = new maps.LatLng(center.lat, center.lng);
-        const map = new maps.Map(mapRef.current, { center: position, level: 5 });
+        const map = new maps.Map(mapRef.current, { center: position, level: MAP_LEVEL_BY_RADIUS[radiusKm] });
         if (maps.Marker) {
           new maps.Marker({ position, map });
         }
         if (maps.Circle) {
           new maps.Circle({
             center: position,
-            radius: RADIUS_METERS,
+            radius: radiusKm * 1000,
             strokeWeight: 2,
             strokeColor: '#2563eb',
             strokeOpacity: 0.8,
@@ -136,7 +147,7 @@ export function NeighborhoodCommuteMap({ className, onCenterChange }: Neighborho
     return () => {
       cancelled = true;
     };
-  }, [appKey, center]);
+  }, [appKey, center, radiusKm]);
 
   return (
     <section className={cn(className ?? 'mt-6')} aria-label="동네 주변 회사행 카풀 지도">
@@ -155,10 +166,32 @@ export function NeighborhoodCommuteMap({ className, onCenterChange }: Neighborho
 
         <div className="relative h-[calc(100%-5rem)] bg-primary-subtle/40">
           <div ref={mapRef} className="h-full" aria-label="회사 근무지 주변 지도" />
-          <div className="pointer-events-none absolute inset-10 rounded-full border-2 border-primary/70 bg-primary/8" aria-hidden="true" />
-          <p className="absolute left-4 top-4 rounded-pill border border-primary/20 bg-surface/90 px-3 py-1 text-caption font-semibold text-primary shadow-1">
-            5km 반경 안의 카풀만 표시합니다.
-          </p>
+          {status === 'fallback' ? (
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary/70 bg-primary/8"
+              aria-hidden="true"
+            />
+          ) : null}
+          <div className="absolute left-4 top-4 space-y-2">
+            <div className="flex gap-2 rounded-pill border border-primary/20 bg-surface/90 p-1 shadow-1 backdrop-blur-xl" aria-label="반경 선택">
+              {NEARBY_COMMUTE_RADIUS_OPTIONS.map((option) => (
+                <Button
+                  key={option}
+                  type="button"
+                  variant={radiusKm === option ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 rounded-full px-3 text-caption"
+                  aria-pressed={radiusKm === option}
+                  onClick={() => onRadiusChange(option)}
+                >
+                  {option}km
+                </Button>
+              ))}
+            </div>
+            <p className="rounded-pill border border-primary/20 bg-surface/90 px-3 py-1 text-caption font-semibold text-primary shadow-1">
+              {radiusKm}km 반경 안의 카풀만 표시합니다.
+            </p>
+          </div>
         </div>
 
         {status === 'fallback' ? (

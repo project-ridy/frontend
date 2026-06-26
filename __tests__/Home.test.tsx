@@ -12,6 +12,8 @@ import type { NearbyCommuteOffersQueryVariables } from '@/src/graphql/generated/
 
 const push = vi.fn();
 let lastNearbyVariables: NearbyCommuteOffersQueryVariables | null = null;
+let lastKakaoMapOptions: { center: unknown; level: number } | null = null;
+let lastKakaoCircleOptions: { center: unknown; radius: number } | null = null;
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
@@ -74,6 +76,8 @@ afterEach(() => {
   localStorage.clear();
   push.mockClear();
   lastNearbyVariables = null;
+  lastKakaoMapOptions = null;
+  lastKakaoCircleOptions = null;
 });
 afterAll(() => server.close());
 
@@ -219,8 +223,32 @@ describe('홈 화면', () => {
     expect(await screen.findByText('현재 위치 기준으로 주변 카풀을 보여줍니다.')).toBeInTheDocument();
   });
 
-  it('FE-NH-006: 현재 위치 5km 반경 테두리와 제한 조회를 표시한다', async () => {
+  it('FE-NH-006: 현재 위치 반경 선택과 제한 조회를 표시한다', async () => {
     vi.stubEnv('NEXT_PUBLIC_KAKAO_MAP_APP_KEY', 'test-kakao-key');
+    vi.stubGlobal('kakao', {
+      maps: {
+        LatLng: class {
+          constructor(
+            public lat: number,
+            public lng: number,
+          ) {}
+        },
+        Map: class {
+          constructor(_container: HTMLElement, options: { center: unknown; level: number }) {
+            lastKakaoMapOptions = options;
+          }
+        },
+        Marker: class {
+          constructor() {}
+        },
+        Circle: class {
+          constructor(options: { center: unknown; radius: number }) {
+            lastKakaoCircleOptions = options;
+          }
+        },
+        load: (callback: () => void) => callback(),
+      },
+    });
     const getCurrentPosition = vi.fn((success: PositionCallback) =>
       success({ coords: { latitude: 37.5, longitude: 127, accuracy: 20 } } as GeolocationPosition),
     );
@@ -230,12 +258,23 @@ describe('홈 화면', () => {
     renderAuthenticatedHome();
 
     expect(await screen.findByText('5km 반경 안의 카풀만 표시합니다.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '1km' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '2km' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '5km' })).toHaveAttribute('aria-pressed', 'true');
     await waitFor(() => expect(lastNearbyVariables?.input.radiusKm).toBe(5));
+    await waitFor(() => expect(lastKakaoCircleOptions?.radius).toBe(5_000));
+    expect(lastKakaoMapOptions?.level).toBe(8);
+
+    await user.click(screen.getByRole('button', { name: '2km' }));
+
+    expect(await screen.findByText('2km 반경 안의 카풀만 표시합니다.')).toBeInTheDocument();
+    await waitFor(() => expect(lastNearbyVariables?.input.radiusKm).toBe(2));
+    await waitFor(() => expect(lastKakaoCircleOptions?.radius).toBe(2_000));
 
     await user.click(screen.getByRole('button', { name: '현재 위치 사용' }));
 
     await waitFor(() => {
-      expect(lastNearbyVariables?.input).toMatchObject({ lat: 37.5, lng: 127, radiusKm: 5 });
+      expect(lastNearbyVariables?.input).toMatchObject({ lat: 37.5, lng: 127, radiusKm: 2 });
     });
   });
 

@@ -8,7 +8,13 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { MatchingCard } from '@/components/ridy/MatchingCard';
 import { NeighborhoodCommuteMap } from '@/components/ridy/NeighborhoodCommuteMap';
 import { Button } from '@/components/ui/button';
-import { DEFAULT_NEARBY_CENTER, useNearbyCommuteOffersQuery, type NearbyCenter } from '@/hooks/useMatchingQueries';
+import {
+  DEFAULT_NEARBY_CENTER,
+  DEFAULT_NEARBY_RADIUS_KM,
+  useNearbyCommuteOffersQuery,
+  type NearbyCenter,
+  type NearbyRadiusKm,
+} from '@/hooks/useMatchingQueries';
 import type { NearbyCommuteOffersQuery } from '@/src/graphql/generated/graphql';
 
 type HomeRide = NonNullable<NearbyCommuteOffersQuery['nearbyCommuteOffers']>['nodes'][number];
@@ -16,13 +22,19 @@ type HomeRide = NonNullable<NearbyCommuteOffersQuery['nearbyCommuteOffers']>['no
 export default function Home() {
   const router = useRouter();
   const [nearbyCenter, setNearbyCenter] = useState<NearbyCenter>(DEFAULT_NEARBY_CENTER);
+  const [radiusKm, setRadiusKm] = useState<NearbyRadiusKm>(DEFAULT_NEARBY_RADIUS_KM);
   const [menuOpen, setMenuOpen] = useState(false);
-  const nearbyOffersQuery = useNearbyCommuteOffersQuery(nearbyCenter);
+  const nearbyOffersQuery = useNearbyCommuteOffersQuery(nearbyCenter, radiusKm);
 
   return (
     <AuthGuard>
       <main className="relative min-h-screen overflow-hidden bg-surface-muted">
-        <NeighborhoodCommuteMap className="box-border h-screen" onCenterChange={setNearbyCenter} />
+        <NeighborhoodCommuteMap
+          className="box-border h-screen"
+          radiusKm={radiusKm}
+          onRadiusChange={setRadiusKm}
+          onCenterChange={setNearbyCenter}
+        />
 
         <div className="fixed inset-x-0 top-0 z-30 flex items-start justify-between p-4">
           <div className="relative">
