@@ -92,6 +92,7 @@ export function NearbyHomeSurface() {
                   <MatchingCard
                     key={ride.id}
                     driverName={ride.driver.name}
+                    driverRating={ride.driver.rating}
                     departure={ride.pickupLabel}
                     destination={ride.workplace.name}
                     departureTime={formatRideTime(ride.departureTime)}

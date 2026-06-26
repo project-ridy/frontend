@@ -140,6 +140,7 @@ describe('매칭 결과 화면', () => {
     expect(await screen.findByText('박준서')).toBeInTheDocument();
     expect(screen.getByText('이민수')).toBeInTheDocument();
     expect(screen.getByText('강남역 인근')).toBeInTheDocument();
+    expect(screen.getByText('평점 4.8')).toBeInTheDocument();
     expect(screen.getByText('역삼동 인근')).toBeInTheDocument();
     expect(screen.getAllByText('테크스타터 본사')).toHaveLength(2);
     expect(screen.getByText('5,000원')).toBeInTheDocument();

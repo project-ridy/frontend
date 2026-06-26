@@ -11,6 +11,7 @@ type MatchingStatus = 'OPEN' | 'MATCHED' | 'IN_PROGRESS' | 'COMPLETED' | 'PENDIN
 
 interface MatchingCardProps {
   driverName: string;
+  driverRating?: number;
   departure: string;
   destination: string;
   departureTime: string;
@@ -35,6 +36,7 @@ const statusVariant = {
 
 export function MatchingCard({
   driverName,
+  driverRating,
   departure,
   destination,
   departureTime,
@@ -74,6 +76,11 @@ export function MatchingCard({
               <Clock3 aria-hidden="true" size={13} />
               {departureTime}
             </span>
+            {driverRating !== undefined ? (
+              <span className="mt-0.5 block text-caption font-semibold text-text-secondary">
+                평점 {driverRating.toFixed(1)}
+              </span>
+            ) : null}
           </div>
           {status ? <Badge variant={statusVariant[status]}>{status}</Badge> : null}
         </div>
