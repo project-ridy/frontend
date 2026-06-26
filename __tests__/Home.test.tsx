@@ -8,15 +8,21 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import Home from '@/app/page';
 import { saveAuthTokens } from '@/lib/auth/token-storage';
 import { TestProviders } from '@/test/TestProviders';
+import type { NearbyCommuteOffersQueryVariables } from '@/src/graphql/generated/graphql';
 
 const push = vi.fn();
+let lastNearbyVariables: NearbyCommuteOffersQueryVariables | null = null;
+let lastKakaoMapOptions: { center: unknown; level: number } | null = null;
+let lastKakaoCircleOptions: { center: unknown; radius: number } | null = null;
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
 }));
 
 const server = setupServer(
-  graphql.query('NearbyCommuteOffers', () => {
+  graphql.query('NearbyCommuteOffers', ({ variables }) => {
+    lastNearbyVariables = variables as NearbyCommuteOffersQueryVariables;
+
     return HttpResponse.json({
       data: {
         nearbyCommuteOffers: {
@@ -69,6 +75,9 @@ afterEach(() => {
   server.resetHandlers();
   localStorage.clear();
   push.mockClear();
+  lastNearbyVariables = null;
+  lastKakaoMapOptions = null;
+  lastKakaoCircleOptions = null;
 });
 afterAll(() => server.close());
 
@@ -100,7 +109,7 @@ describe('홈 화면', () => {
     expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).not.toHaveClass('pt-24');
     expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toHaveClass('max-h-[24vh]');
+    expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).not.toHaveClass('max-h-[24vh]');
     expect(await screen.findByText('박준서')).toBeInTheDocument();
     expect(screen.getByText('강남역 인근')).toBeInTheDocument();
     expect(screen.getByText('테크스타터 본사')).toBeInTheDocument();
@@ -144,21 +153,26 @@ describe('홈 화면', () => {
     expect(screen.getByRole('button', { name: '다시 시도' })).toBeInTheDocument();
   });
 
-  it('하단 내비게이션을 표시하고 검색 탭을 누르면 매칭 화면으로 이동한다', async () => {
+  it('FE-NH-003: 홈은 하단바 없이 상단 메뉴와 프로필 버튼을 표시한다', async () => {
     const user = userEvent.setup();
     renderAuthenticatedHome();
 
-    expect(await screen.findByLabelText('홈')).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByLabelText('검색')).toBeInTheDocument();
-    expect(screen.getByLabelText('채팅')).toBeInTheDocument();
-    expect(screen.getByLabelText('내 정보')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: '메뉴' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '프로필' })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: '하단 내비게이션' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('검색')).not.toBeInTheDocument();
 
-    await user.click(screen.getByLabelText('검색'));
+    await user.click(screen.getByRole('button', { name: '메뉴' }));
+    await user.click(screen.getByRole('button', { name: '이전 탑승 기록' }));
 
-    expect(push).toHaveBeenCalledWith('/matchings');
+    expect(push).toHaveBeenCalledWith('/payments');
+
+    await user.click(screen.getByRole('button', { name: '프로필' }));
+
+    expect(push).toHaveBeenCalledWith('/profile');
   });
 
-  it('FE-KT-005: 홈 화면과 하단 내비게이션이 KT responsive shell 기준을 따른다', async () => {
+  it('FE-KT-005: 홈 화면과 상단 액션이 KT responsive shell 기준을 따른다', async () => {
     renderAuthenticatedHome();
 
     expect(await screen.findByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
@@ -167,12 +181,8 @@ describe('홈 화면', () => {
     expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toHaveClass('h-screen');
     expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toHaveClass('fixed');
 
-    const navigation = screen.getByRole('navigation', { name: '하단 내비게이션' });
-    expect(navigation).toHaveClass('bg-surface-raised');
-    expect(navigation).toHaveClass('shadow-4');
-    expect(navigation).toHaveClass('supports-[padding:max(0px)]:pb-[max(env(safe-area-inset-bottom),0.75rem)]');
-
-    expect(screen.getByLabelText('홈')).toHaveClass('min-h-11');
+    expect(screen.getByRole('button', { name: '메뉴' })).toHaveClass('min-h-11');
+    expect(screen.getByRole('button', { name: '프로필' })).toHaveClass('min-h-11');
   });
 
   it('FE-KT-PURE-003: 홈 지도 화면이 gradient strip 없이 KT surface hierarchy를 사용한다', async () => {
@@ -193,7 +203,7 @@ describe('홈 화면', () => {
 
     expect(await screen.findByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
     expect(screen.getByText('Kakao 지도')).toBeInTheDocument();
-    expect(screen.getByText('테크스타터 출근길')).toBeInTheDocument();
+    expect(screen.getByText('집 주변 회사행 카풀')).toBeInTheDocument();
   });
 
   it('FE-NW-002: 위치 권한이 허용되면 현재 위치 기준 안내를 보여준다', async () => {
@@ -213,11 +223,79 @@ describe('홈 화면', () => {
     expect(await screen.findByText('현재 위치 기준으로 주변 카풀을 보여줍니다.')).toBeInTheDocument();
   });
 
+  it('FE-NH-006: 현재 위치 반경 선택과 제한 조회를 표시한다', async () => {
+    vi.stubEnv('NEXT_PUBLIC_KAKAO_MAP_APP_KEY', 'test-kakao-key');
+    vi.stubGlobal('kakao', {
+      maps: {
+        LatLng: class {
+          constructor(
+            public lat: number,
+            public lng: number,
+          ) {}
+        },
+        Map: class {
+          constructor(_container: HTMLElement, options: { center: unknown; level: number }) {
+            lastKakaoMapOptions = options;
+          }
+        },
+        Marker: class {
+          constructor() {}
+        },
+        Circle: class {
+          constructor(options: { center: unknown; radius: number }) {
+            lastKakaoCircleOptions = options;
+          }
+        },
+        load: (callback: () => void) => callback(),
+      },
+    });
+    const getCurrentPosition = vi.fn((success: PositionCallback) =>
+      success({ coords: { latitude: 37.5, longitude: 127, accuracy: 20 } } as GeolocationPosition),
+    );
+    vi.stubGlobal('navigator', { geolocation: { getCurrentPosition } });
+    const user = userEvent.setup();
+
+    renderAuthenticatedHome();
+
+    expect(await screen.findByText('5km 반경 안의 카풀만 표시합니다.')).toBeInTheDocument();
+    expect(await screen.findByText('평점 4.8')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '1km' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '2km' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '5km' })).toHaveAttribute('aria-pressed', 'true');
+    await waitFor(() => expect(lastNearbyVariables?.input.radiusKm).toBe(5));
+    await waitFor(() => expect(lastKakaoCircleOptions?.radius).toBe(5_000));
+    expect(lastKakaoMapOptions?.level).toBe(8);
+
+    await user.click(screen.getByRole('button', { name: '2km' }));
+
+    expect(await screen.findByText('2km 반경 안의 카풀만 표시합니다.')).toBeInTheDocument();
+    await waitFor(() => expect(lastNearbyVariables?.input.radiusKm).toBe(2));
+    await waitFor(() => expect(lastKakaoCircleOptions?.radius).toBe(2_000));
+
+    await user.click(screen.getByRole('button', { name: '현재 위치 사용' }));
+
+    await waitFor(() => {
+      expect(lastNearbyVariables?.input).toMatchObject({ lat: 37.5, lng: 127, radiusKm: 2 });
+    });
+  });
+
   it('선택 버튼을 누르면 카풀 상세로 이동한다', async () => {
     const user = userEvent.setup();
     renderAuthenticatedHome();
 
     await user.click(await screen.findByRole('button', { name: '선택' }));
+
+    expect(push).toHaveBeenCalledWith('/matchings/ride-1');
+  });
+
+  it('지도 마커를 누르면 카풀 상세로 이동한다', async () => {
+    const user = userEvent.setup();
+    renderAuthenticatedHome();
+
+    const marker = await screen.findByRole('button', { name: '박준서 지도 마커' });
+
+    expect(marker).toHaveStyle({ left: '48%', top: '10%' });
+    await user.click(marker);
 
     expect(push).toHaveBeenCalledWith('/matchings/ride-1');
   });

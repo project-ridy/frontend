@@ -1,12 +1,12 @@
 'use client';
 
-import { Home, MessageCircle, Search, User } from 'lucide-react';
+import { Clock3, Home, MessageCircle, User } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
 const iconMap = {
   home: Home,
-  search: Search,
+  history: Clock3,
   chat: MessageCircle,
   profile: User,
 } as const;
