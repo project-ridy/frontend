@@ -105,7 +105,7 @@ describe('홈 화면', () => {
     expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).not.toHaveClass('pt-24');
     expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toHaveClass('max-h-[24vh]');
+    expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).not.toHaveClass('max-h-[24vh]');
     expect(await screen.findByText('박준서')).toBeInTheDocument();
     expect(screen.getByText('강남역 인근')).toBeInTheDocument();
     expect(screen.getByText('테크스타터 본사')).toBeInTheDocument();
@@ -149,22 +149,26 @@ describe('홈 화면', () => {
     expect(screen.getByRole('button', { name: '다시 시도' })).toBeInTheDocument();
   });
 
-  it('FE-NH-003: 하단 내비게이션은 검색 없이 기록 탭을 표시한다', async () => {
+  it('FE-NH-003: 홈은 하단바 없이 상단 메뉴와 프로필 버튼을 표시한다', async () => {
     const user = userEvent.setup();
     renderAuthenticatedHome();
 
-    expect(await screen.findByLabelText('홈')).toHaveAttribute('aria-current', 'page');
+    expect(await screen.findByRole('button', { name: '메뉴' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '프로필' })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: '하단 내비게이션' })).not.toBeInTheDocument();
     expect(screen.queryByLabelText('검색')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('기록')).toBeInTheDocument();
-    expect(screen.getByLabelText('채팅')).toBeInTheDocument();
-    expect(screen.getByLabelText('내 정보')).toBeInTheDocument();
 
-    await user.click(screen.getByLabelText('기록'));
+    await user.click(screen.getByRole('button', { name: '메뉴' }));
+    await user.click(screen.getByRole('button', { name: '이전 탑승 기록' }));
 
     expect(push).toHaveBeenCalledWith('/payments');
+
+    await user.click(screen.getByRole('button', { name: '프로필' }));
+
+    expect(push).toHaveBeenCalledWith('/profile');
   });
 
-  it('FE-KT-005: 홈 화면과 하단 내비게이션이 KT responsive shell 기준을 따른다', async () => {
+  it('FE-KT-005: 홈 화면과 상단 액션이 KT responsive shell 기준을 따른다', async () => {
     renderAuthenticatedHome();
 
     expect(await screen.findByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
@@ -173,12 +177,8 @@ describe('홈 화면', () => {
     expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toHaveClass('h-screen');
     expect(screen.getByRole('region', { name: '선택 가능한 카풀' })).toHaveClass('fixed');
 
-    const navigation = screen.getByRole('navigation', { name: '하단 내비게이션' });
-    expect(navigation).toHaveClass('bg-surface-raised');
-    expect(navigation).toHaveClass('shadow-4');
-    expect(navigation).toHaveClass('supports-[padding:max(0px)]:pb-[max(env(safe-area-inset-bottom),0.75rem)]');
-
-    expect(screen.getByLabelText('홈')).toHaveClass('min-h-11');
+    expect(screen.getByRole('button', { name: '메뉴' })).toHaveClass('min-h-11');
+    expect(screen.getByRole('button', { name: '프로필' })).toHaveClass('min-h-11');
   });
 
   it('FE-KT-PURE-003: 홈 지도 화면이 gradient strip 없이 KT surface hierarchy를 사용한다', async () => {

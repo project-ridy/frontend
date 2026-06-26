@@ -224,14 +224,8 @@ describe('홈/매칭/채팅 통합 흐름', () => {
     expect(await screen.findByText('탑승 요청을 보냈습니다')).toBeInTheDocument();
   });
 
-  it('홈 채팅 탭에서 채팅방으로 이동해 메시지를 전송한다', async () => {
+  it('채팅방에서 메시지를 전송한다', async () => {
     const user = userEvent.setup();
-    renderWithAuth(<Home />);
-
-    await user.click(await screen.findByLabelText('채팅'));
-    expect(push).toHaveBeenCalledWith('/chat');
-
-    cleanup();
     renderWithAuth(<ChatPage />);
 
     await user.click(await screen.findByRole('button', { name: /강남역 → 수원역/ }));
@@ -251,17 +245,17 @@ describe('홈/매칭/채팅 통합 흐름', () => {
     });
   });
 
-  it('바텀 내비게이션 4탭 이동 경로를 검증한다', async () => {
+  it('홈 상단 메뉴와 프로필 이동 경로를 검증한다', async () => {
     const user = userEvent.setup();
     renderWithAuth(<Home />);
 
-    expect(await screen.findByLabelText('홈')).toHaveAttribute('aria-current', 'page');
-    await user.click(screen.getByLabelText('기록'));
-    await user.click(screen.getByLabelText('채팅'));
-    await user.click(screen.getByLabelText('내 정보'));
+    expect(await screen.findByRole('button', { name: '메뉴' })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: '하단 내비게이션' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '메뉴' }));
+    await user.click(screen.getByRole('button', { name: '이전 탑승 기록' }));
+    await user.click(screen.getByRole('button', { name: '프로필' }));
 
     expect(push).toHaveBeenCalledWith('/payments');
-    expect(push).toHaveBeenCalledWith('/chat');
     expect(push).toHaveBeenCalledWith('/profile');
   });
 

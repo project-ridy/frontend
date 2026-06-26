@@ -1,48 +1,62 @@
 'use client';
 
-import { MapPin } from 'lucide-react';
+import { MapPin, Menu, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { AuthGuard } from '@/components/auth/AuthGuard';
-import { BottomNavigation } from '@/components/ridy/BottomNavigation';
 import { MatchingCard } from '@/components/ridy/MatchingCard';
 import { NeighborhoodCommuteMap } from '@/components/ridy/NeighborhoodCommuteMap';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_NEARBY_CENTER, useNearbyCommuteOffersQuery, type NearbyCenter } from '@/hooks/useMatchingQueries';
 import type { NearbyCommuteOffersQuery } from '@/src/graphql/generated/graphql';
 
-const bottomTabs = [
-  { id: 'home', label: '홈', icon: 'home' as const },
-  { id: 'history', label: '기록', icon: 'history' as const },
-  { id: 'chat', label: '채팅', icon: 'chat' as const },
-  { id: 'profile', label: '내 정보', icon: 'profile' as const },
-];
-
 type HomeRide = NonNullable<NearbyCommuteOffersQuery['nearbyCommuteOffers']>['nodes'][number];
 
 export default function Home() {
   const router = useRouter();
   const [nearbyCenter, setNearbyCenter] = useState<NearbyCenter>(DEFAULT_NEARBY_CENTER);
+  const [menuOpen, setMenuOpen] = useState(false);
   const nearbyOffersQuery = useNearbyCommuteOffersQuery(nearbyCenter);
-
-  const handleTabChange = (tabId: string) => {
-    const routes: Record<string, string> = {
-      home: '/',
-      history: '/payments',
-      chat: '/chat',
-      profile: '/profile',
-    };
-
-    router.push(routes[tabId] ?? '/');
-  };
 
   return (
     <AuthGuard>
       <main className="relative min-h-screen overflow-hidden bg-surface-muted">
         <NeighborhoodCommuteMap className="box-border h-screen" onCenterChange={setNearbyCenter} />
 
-        <section className="fixed inset-x-0 bottom-24 z-20 mx-auto max-h-[24vh] max-w-6xl overflow-hidden px-4" aria-label="선택 가능한 카풀">
+        <div className="fixed inset-x-0 top-0 z-30 flex items-start justify-between p-4">
+          <div className="relative">
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 rounded-full bg-surface/90 px-3 shadow-2 backdrop-blur-xl"
+              aria-label="메뉴"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              <Menu aria-hidden="true" size={18} />
+            </Button>
+            {menuOpen ? (
+              <div className="mt-2 rounded-ridy-xl border border-border-default bg-surface/95 p-2 shadow-2 backdrop-blur-xl">
+                <Button type="button" variant="ghost" className="justify-start" onClick={() => router.push('/payments')}>
+                  이전 탑승 기록
+                </Button>
+              </div>
+            ) : null}
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 rounded-full bg-surface/90 px-3 shadow-2 backdrop-blur-xl"
+            aria-label="프로필"
+            onClick={() => router.push('/profile')}
+          >
+            <User aria-hidden="true" size={18} />
+          </Button>
+        </div>
+
+        <section className="fixed inset-x-0 bottom-24 z-20 mx-auto max-w-6xl px-4" aria-label="선택 가능한 카풀">
           <div className="rounded-ridy-xl bg-surface/90 p-3 shadow-2 backdrop-blur-xl">
             <div className="mb-2 flex items-center justify-between gap-3">
               <div>
@@ -79,8 +93,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      <BottomNavigation tabs={bottomTabs} activeTab="home" onTabChange={handleTabChange} />
     </AuthGuard>
   );
 }
