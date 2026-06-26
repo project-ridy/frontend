@@ -286,4 +286,13 @@ describe('홈 화면', () => {
 
     expect(push).toHaveBeenCalledWith('/matchings/ride-1');
   });
+
+  it('지도 마커를 누르면 카풀 상세로 이동한다', async () => {
+    const user = userEvent.setup();
+    renderAuthenticatedHome();
+
+    await user.click(await screen.findByRole('button', { name: '박준서 지도 마커' }));
+
+    expect(push).toHaveBeenCalledWith('/matchings/ride-1');
+  });
 });
