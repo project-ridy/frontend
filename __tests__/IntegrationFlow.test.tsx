@@ -190,7 +190,7 @@ describe('홈/매칭/채팅 통합 흐름', () => {
   it('인증 후 홈 화면에 진입한다', async () => {
     renderWithAuth(<Home />);
 
-    expect(await screen.findByRole('heading', { name: '테크스타터 출근길' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '집 주변 회사행 카풀' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '선택 가능한 카풀' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
     expect(await screen.findByText('박준서')).toBeInTheDocument();
@@ -200,7 +200,7 @@ describe('홈/매칭/채팅 통합 흐름', () => {
     const user = userEvent.setup();
     renderWithAuth(<Home />);
 
-    await screen.findByRole('heading', { name: '테크스타터 출근길' });
+    await screen.findByRole('heading', { name: '집 주변 회사행 카풀' });
     await user.click(screen.getByRole('button', { name: '전체 보기' }));
 
     expect(push).toHaveBeenCalledWith('/matchings');

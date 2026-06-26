@@ -203,7 +203,7 @@ describe('홈 화면', () => {
 
     expect(await screen.findByRole('region', { name: '동네 주변 회사행 카풀 지도' })).toBeInTheDocument();
     expect(screen.getByText('Kakao 지도')).toBeInTheDocument();
-    expect(screen.getByText('테크스타터 출근길')).toBeInTheDocument();
+    expect(screen.getByText('집 주변 회사행 카풀')).toBeInTheDocument();
   });
 
   it('FE-NW-002: 위치 권한이 허용되면 현재 위치 기준 안내를 보여준다', async () => {
@@ -258,6 +258,7 @@ describe('홈 화면', () => {
     renderAuthenticatedHome();
 
     expect(await screen.findByText('5km 반경 안의 카풀만 표시합니다.')).toBeInTheDocument();
+    expect(await screen.findByText('평점 4.8')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '1km' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '2km' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '5km' })).toHaveAttribute('aria-pressed', 'true');
@@ -291,7 +292,10 @@ describe('홈 화면', () => {
     const user = userEvent.setup();
     renderAuthenticatedHome();
 
-    await user.click(await screen.findByRole('button', { name: '박준서 지도 마커' }));
+    const marker = await screen.findByRole('button', { name: '박준서 지도 마커' });
+
+    expect(marker).toHaveStyle({ left: '48%', top: '10%' });
+    await user.click(marker);
 
     expect(push).toHaveBeenCalledWith('/matchings/ride-1');
   });

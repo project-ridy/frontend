@@ -22,6 +22,8 @@ const MAP_LEVEL_BY_RADIUS: Record<NearbyRadiusKm, number> = {
   5: 8,
 };
 
+const MARKER_SPREAD_DEGREES = 0.04;
+
 interface KakaoLatLng {
   new (lat: number, lng: number): unknown;
 }
@@ -168,7 +170,7 @@ export function NeighborhoodCommuteMap({
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <div>
             <p className="text-caption font-semibold text-primary">Kakao 지도</p>
-            <h2 className="text-h3 text-gray-900">테크스타터 출근길</h2>
+            <h2 className="text-h3 text-gray-900">집 주변 회사행 카풀</h2>
             <p className="mt-1 text-caption text-text-secondary">{locationStatus}</p>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={handleUseCurrentLocation}>
@@ -191,7 +193,7 @@ export function NeighborhoodCommuteMap({
                 key={ride.id}
                 type="button"
                 className="pointer-events-auto absolute size-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-primary shadow-2 transition-transform duration-fast hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                style={getMarkerPosition(index)}
+                style={getMarkerPosition(ride, center, index)}
                 aria-label={`${ride.driver.name} 지도 마커`}
                 title={`${ride.driver.name} · ${ride.pickupLabel}`}
                 onClick={() => onRideSelect?.(ride.id)}
@@ -230,7 +232,17 @@ export function NeighborhoodCommuteMap({
   );
 }
 
-function getMarkerPosition(index: number): CSSProperties {
+function getMarkerPosition(ride: NearbyRideMarker, center: NearbyCenter, fallbackIndex: number): CSSProperties {
+  if (ride.departure) {
+    const offsetLng = (ride.departure.lng - center.lng) / MARKER_SPREAD_DEGREES;
+    const offsetLat = (center.lat - ride.departure.lat) / MARKER_SPREAD_DEGREES;
+
+    return {
+      left: `${clampPercent(50 + offsetLng * 100)}%`,
+      top: `${clampPercent(50 + offsetLat * 100)}%`,
+    };
+  }
+
   const positions = [
     { left: '35%', top: '42%' },
     { left: '58%', top: '36%' },
@@ -238,5 +250,9 @@ function getMarkerPosition(index: number): CSSProperties {
     { left: '44%', top: '62%' },
   ] as const;
 
-  return positions[index % positions.length];
+  return positions[fallbackIndex % positions.length];
+}
+
+function clampPercent(value: number): number {
+  return Math.min(90, Math.max(10, Math.round(value)));
 }
